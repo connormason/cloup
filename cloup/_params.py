@@ -1,24 +1,40 @@
 from __future__ import annotations
 
+from typing import Any
+from typing import Callable
+from typing import TYPE_CHECKING
+from typing import TypeVar
+from typing import Union
+
 import click
 from click.decorators import _param_memo
 
+if TYPE_CHECKING:
+    from cloup import Context
+    from cloup._commands import Command
+    from cloup._option_groups import OptionGroup
+
+
+FC = TypeVar('FC', bound=Union[Callable[..., Any], 'Command'])
+
 
 class Argument(click.Argument):
-    """A :class:`click.Argument` with help text."""
-
-    def __init__(self, *args, help=None, **attrs):
+    """
+    A :class:`click.Argument` with help text.
+    """
+    def __init__(self, *args: Any, help: str | None = None, **attrs: Any):
         super().__init__(*args, **attrs)
         self.help = help
 
-    def get_help_record(self, ctx):
+    def get_help_record(self, ctx: Context) -> tuple[str, str]:
         return self.make_metavar(), self.help or ''
 
 
 class Option(click.Option):
-    """A :class:`click.Option` with an extra field ``group`` of type ``OptionGroup``."""
-
-    def __init__(self, *args, group=None, **attrs):
+    """
+    A :class:`click.Option` with an extra field ``group`` of type ``OptionGroup``.
+    """
+    def __init__(self, *args: Any, group: OptionGroup | None = None, **attrs: Any):
         super().__init__(*args, **attrs)
         self.group = group
 
@@ -27,7 +43,11 @@ GroupedOption = Option
 """Alias of ``Option``."""
 
 
-def argument(*param_decls, cls=None, **attrs):
+def argument(
+    *param_decls: str,
+    cls: type[click.Argument] | None = None,
+    **attrs: Any
+) -> Callable[[FC], FC]:
     ArgumentClass = cls or Argument
 
     def decorator(f):
@@ -37,8 +57,14 @@ def argument(*param_decls, cls=None, **attrs):
     return decorator
 
 
-def option(*param_decls, cls=None, group=None, **attrs):
-    """Attach an ``Option`` to the command.
+def option(
+    *param_decls: str,
+    cls: type[click.Option] | None = None,
+    group: OptionGroup | None = None,
+    **attrs: Any
+) -> Callable[[FC], FC]:
+    """
+    Attach an ``Option`` to the command.
     Refer to :class:`click.Option` and :class:`click.Parameter` for more info
     about the accepted parameters.
 
