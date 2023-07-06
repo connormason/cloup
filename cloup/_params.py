@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import click
 from click.decorators import _param_memo
 

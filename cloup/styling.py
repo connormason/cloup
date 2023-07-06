@@ -2,13 +2,21 @@
 This module contains components that specifically address the styling and theming
 of the ``--help`` output.
 """
+from __future__ import annotations
+
 import dataclasses as dc
-from typing import Any, Callable, Dict, NamedTuple, Optional
+from typing import Any
+from typing import Callable
+from typing import NamedTuple
 
 import click
 
-from cloup._util import FrozenSpace, click_version_tuple, delete_keys, identity
-from cloup.typing import MISSING, Possibly
+from cloup._util import click_version_tuple
+from cloup._util import delete_keys
+from cloup._util import FrozenSpace
+from cloup._util import identity
+from cloup.typing import MISSING
+from cloup.typing import Possibly
 
 IStyle = Callable[[str], str]
 """A callable that takes a string and returns a styled version of it."""
@@ -71,7 +79,7 @@ class HelpTheme(NamedTuple):
     alias: IStyle = identity
     """Style of subcommand aliases in a definition lists."""
 
-    alias_secondary: Optional[IStyle] = None
+    alias_secondary: IStyle | None = None
     """Style of separator and eventual parenthesis/brackets in subcommand alias lists.
     If not provided, the ``alias`` style will be used."""
 
@@ -80,17 +88,17 @@ class HelpTheme(NamedTuple):
 
     def with_(
         self,
-        invoked_command: Optional[IStyle] = None,
-        command_help: Optional[IStyle] = None,
-        heading: Optional[IStyle] = None,
-        constraint: Optional[IStyle] = None,
-        section_help: Optional[IStyle] = None,
-        col1: Optional[IStyle] = None,
-        col2: Optional[IStyle] = None,
-        alias: Optional[IStyle] = None,
-        alias_secondary: Possibly[Optional[IStyle]] = MISSING,
-        epilog: Optional[IStyle] = None,
-    ) -> 'HelpTheme':
+        invoked_command: IStyle | None = None,
+        command_help: IStyle | None = None,
+        heading: IStyle | None = None,
+        constraint: IStyle | None = None,
+        section_help: IStyle | None = None,
+        col1: IStyle | None = None,
+        col2: IStyle | None = None,
+        alias: IStyle | None = None,
+        alias_secondary: Possibly[IStyle | None] = MISSING,
+        epilog: IStyle | None = None,
+    ) -> HelpTheme:
         kwargs = {key: val for key, val in locals().items() if val is not None}
         if alias_secondary is MISSING:
             del kwargs['alias_secondary']
@@ -100,7 +108,7 @@ class HelpTheme(NamedTuple):
         return self
 
     @staticmethod
-    def dark() -> 'HelpTheme':
+    def dark() -> HelpTheme:
         """A theme assuming a dark terminal background color."""
         return HelpTheme(
             invoked_command=Style(fg='bright_yellow'),
@@ -112,7 +120,7 @@ class HelpTheme(NamedTuple):
         )
 
     @staticmethod
-    def light() -> 'HelpTheme':
+    def light() -> HelpTheme:
         """A theme assuming a light terminal background color."""
         return HelpTheme(
             invoked_command=Style(fg='yellow'),
@@ -156,19 +164,19 @@ class Style:
     .. versionadded:: 0.8.0
     """
 
-    fg: Optional[str] = None
-    bg: Optional[str] = None
-    bold: Optional[bool] = None
-    dim: Optional[bool] = None
-    underline: Optional[bool] = None
-    overline: Optional[bool] = None
-    italic: Optional[bool] = None
-    blink: Optional[bool] = None
-    reverse: Optional[bool] = None
-    strikethrough: Optional[bool] = None
-    text_transform: Optional[IStyle] = None
+    fg: str | None = None
+    bg: str | None = None
+    bold: bool | None = None
+    dim: bool | None = None
+    underline: bool | None = None
+    overline: bool | None = None
+    italic: bool | None = None
+    blink: bool | None = None
+    reverse: bool | None = None
+    strikethrough: bool | None = None
+    text_transform: IStyle | None = None
 
-    _style_kwargs: Optional[Dict[str, Any]] = dc.field(init=False, default=None)
+    _style_kwargs: dict[str, Any] | None = dc.field(init=False, default=None)
 
     def __call__(self, text: str) -> str:
         if self._style_kwargs is None:

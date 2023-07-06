@@ -90,4 +90,3 @@ This is possible because aliases are stored in the subcommand itself, precisely
 in the ``aliases`` attribute. Cloup commands declare this attribute and accept
 it as a parameter. For all other type of commands, Cloup uses monkey-patching
 to add this attribute.
-

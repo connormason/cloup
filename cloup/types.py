@@ -1,6 +1,8 @@
 """
 Parameter types and "shortcuts" for creating commonly used types.
 """
+from __future__ import annotations
+
 import pathlib
 
 import click

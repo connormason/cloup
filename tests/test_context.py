@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest.mock import Mock
 
 import pytest
@@ -24,7 +26,7 @@ def test_warning_is_raised_iff_arg_is_provided_both_as_context_and_formatter_arg
 ):
     kwargs = {
         ctx_arg_name: ctx_arg_value,
-        "formatter_settings": {formatter_arg_name: formatter_arg_value}
+        'formatter_settings': {formatter_arg_name: formatter_arg_value}
     }
 
     Context(command=Mock(), **kwargs)
@@ -45,7 +47,7 @@ def test_warning_is_raised_iff_arg_is_provided_both_as_context_and_formatter_arg
 )
 def test_warning_suppression(ctx_arg_name, formatter_arg_name, recwarn):
     kwargs = {
-        ctx_arg_name: 80, "formatter_settings": {formatter_arg_name: 90}
+        ctx_arg_name: 80, 'formatter_settings': {formatter_arg_name: 90}
     }
     cloup.warnings.formatter_settings_conflict = False
     Context(command=Mock(), **kwargs)

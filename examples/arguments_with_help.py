@@ -1,15 +1,18 @@
 """
 Show-casing the "Positional arguments" help section.
 """
+from __future__ import annotations
+
 from pprint import pprint
 
 import cloup
-from cloup import option, option_group
+from cloup import option
+from cloup import option_group
 
 
 @cloup.command(name='cloup', show_constraints=True)
-@cloup.argument('input_path', help="Input path")
-@cloup.argument('out_path', help="Output path")
+@cloup.argument('input_path', help='Input path')
+@cloup.argument('out_path', help='Output path')
 @option_group(
     'An option group',
     option('-o', '--one', help='a 1st cool option'),

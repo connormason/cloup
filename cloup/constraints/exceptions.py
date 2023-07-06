@@ -1,7 +1,12 @@
-from typing import Iterable, Sequence, TYPE_CHECKING
+from __future__ import annotations
+
+from collections.abc import Iterable
+from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 import click
-from click import Context, Parameter
+from click import Context
+from click import Parameter
 
 from .common import join_param_labels
 
@@ -10,11 +15,11 @@ if TYPE_CHECKING:
 
 
 def default_constraint_error(params: Iterable[Parameter], desc: str) -> str:
-    return 'the following constraint on parameters [%s] was not satisfied: %s' % (join_param_labels(params), desc)
+    return f'the following constraint on parameters [{join_param_labels(params)}] was not satisfied: {desc}'
 
 
 class ConstraintViolated(click.UsageError):
-    def __init__(self, message: str, ctx: Context, constraint: 'Constraint', params: Sequence[click.Parameter]):
+    def __init__(self, message: str, ctx: Context, constraint: Constraint, params: Sequence[click.Parameter]):
         super().__init__(message, ctx=ctx)
         self.ctx = ctx
         self.constraint = constraint
@@ -25,9 +30,9 @@ class ConstraintViolated(click.UsageError):
         cls,
         desc: str,
         ctx: Context,
-        constraint: 'Constraint',
+        constraint: Constraint,
         params: Sequence[Parameter],
-    ) -> 'ConstraintViolated':
+    ) -> ConstraintViolated:
         return ConstraintViolated(
             default_constraint_error(params, desc),
             ctx=ctx,
@@ -41,7 +46,7 @@ class UnsatisfiableConstraint(Exception):
     independently from their values at runtime; e.g. ``mutually_exclusive`` cannot
     be satisfied if multiple of the parameters are required."""
 
-    def __init__(self, constraint: 'Constraint', params: Iterable[Parameter], reason: str):
+    def __init__(self, constraint: Constraint, params: Iterable[Parameter], reason: str):
         self.constraint = constraint
         self.params = params
         self.reason = reason

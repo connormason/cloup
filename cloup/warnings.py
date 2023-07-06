@@ -7,5 +7,6 @@ This is an alternative to using ``warnings.filterwarnings`` that:
   easier and cleaner than writing a regex that matches a warning message
 - can be used by Cloup itself to skip the checks that (may) generate a warning.
 """
+from __future__ import annotations
 
 formatter_settings_conflict = True

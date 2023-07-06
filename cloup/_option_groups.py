@@ -1,34 +1,34 @@
 """
 Implements the "option groups" feature.
 """
+from __future__ import annotations
+
 from collections import defaultdict
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    overload,
-)
+from collections.abc import Iterable
+from collections.abc import Iterator
+from collections.abc import Sequence
+from typing import Any
+from typing import Callable
+from typing import overload
 
 import click
-from click import Option, Parameter
+from click import Option
+from click import Parameter
 
 import cloup
 from cloup._params import option
-from cloup._util import first_bool, make_repr
+from cloup._util import first_bool
+from cloup._util import make_repr
 from cloup.constraints import Constraint
-from cloup.formatting import HelpSection, ensure_is_cloup_formatter
-from cloup.typing import Decorator, F
+from cloup.formatting import ensure_is_cloup_formatter
+from cloup.formatting import HelpSection
+from cloup.typing import Decorator
+from cloup.typing import F
 
 
 class OptionGroup:
     def __init__(
-        self, title: str, help: Optional[str] = None, constraint: Optional[Constraint] = None, hidden: bool = False
+        self, title: str, help: str | None = None, constraint: Constraint | None = None, hidden: bool = False
     ):
         """Contains the information of an option group and identifies it.
         Note that, as far as the clients of this library are concerned, an
@@ -61,7 +61,7 @@ class OptionGroup:
         elif all(opt.hidden for opt in opts):
             self.hidden = True
 
-    def get_help_records(self, ctx: click.Context) -> List[Tuple[str, str]]:
+    def get_help_records(self, ctx: click.Context) -> list[tuple[str, str]]:
         if self.hidden:
             return []
         return [
@@ -92,7 +92,7 @@ def has_option_group(param: click.Parameter) -> bool:
     return getattr(param, 'group', None) is not None
 
 
-def get_option_group_of(param: click.Option) -> Optional[OptionGroup]:
+def get_option_group_of(param: click.Option) -> OptionGroup | None:
     return getattr(param, 'group', None)
 
 
@@ -122,7 +122,7 @@ class OptionGroupMixin:
     .. versionadded:: 0.5.0
     """
 
-    def __init__(self, *args: Any, align_option_groups: Optional[bool] = None, **kwargs: Any) -> None:
+    def __init__(self, *args: Any, align_option_groups: bool | None = None, **kwargs: Any) -> None:
         """
         :param align_option_groups:
             whether to align the columns of all option groups' help sections.
@@ -155,11 +155,11 @@ class OptionGroupMixin:
         (which needs a ``Context`` object)."""
 
     @staticmethod
-    def _group_params(params: List[Parameter]) -> Tuple[List[click.Argument], List[OptionGroup], List[Option]]:
+    def _group_params(params: list[Parameter]) -> tuple[list[click.Argument], list[OptionGroup], list[Option]]:
 
-        options_by_group: Dict[OptionGroup, List[click.Option]] = defaultdict(list)
-        arguments: List[click.Argument] = []
-        ungrouped_options: List[click.Option] = []
+        options_by_group: dict[OptionGroup, list[click.Option]] = defaultdict(list)
+        arguments: list[click.Argument] = []
+        ungrouped_options: list[click.Option] = []
         for param in params:
             if isinstance(param, click.Argument):
                 arguments.append(param)
@@ -186,12 +186,12 @@ class OptionGroupMixin:
         else:
             return self.ungrouped_options
 
-    def get_argument_help_record(self, arg: click.Argument, ctx: click.Context) -> Tuple[str, str]:
+    def get_argument_help_record(self, arg: click.Argument, ctx: click.Context) -> tuple[str, str]:
         if isinstance(arg, cloup.Argument):
             return arg.get_help_record(ctx)
         return arg.make_metavar(), ''
 
-    def get_arguments_help_section(self, ctx: click.Context) -> Optional[HelpSection]:
+    def get_arguments_help_section(self, ctx: click.Context) -> HelpSection | None:
         args_with_help = (arg for arg in self.arguments if getattr(arg, 'help', None))
         if not any(args_with_help):
             return None
@@ -214,7 +214,7 @@ class OptionGroupMixin:
             constraint=group.constraint.help(ctx) if group.constraint else None,
         )
 
-    def must_align_option_groups(self, ctx: Optional[click.Context], default: bool = True) -> bool:
+    def must_align_option_groups(self, ctx: click.Context | None, default: bool = True) -> bool:
         """
         Return ``True`` if the help sections of all options groups should have
         their columns aligned.
@@ -271,7 +271,7 @@ def option_group(
     title: str,
     help: str,
     *options: Decorator,
-    constraint: Optional[Constraint] = None,
+    constraint: Constraint | None = None,
     hidden: bool = False,
 ) -> Callable[[F], F]:
     ...
@@ -281,8 +281,8 @@ def option_group(
 def option_group(
     title: str,
     *options: Decorator,
-    help: Optional[str] = None,
-    constraint: Optional[Constraint] = None,
+    help: str | None = None,
+    constraint: Constraint | None = None,
     hidden: bool = False,
 ) -> Callable[[F], F]:
     ...
@@ -334,8 +334,8 @@ def option_group(title: str, *args: Any, **kwargs: Any) -> Callable[[F], F]:
 def _option_group(
     title: str,
     options: Sequence[Callable[[F], F]],
-    help: Optional[str] = None,
-    constraint: Optional[Constraint] = None,
+    help: str | None = None,
+    constraint: Constraint | None = None,
     hidden: bool = False,
 ) -> Callable[[F], F]:
     if not isinstance(title, str):

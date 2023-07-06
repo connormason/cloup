@@ -5,3 +5,4 @@ mypy
 tox
 twine
 sphinx-autobuild
+pre-commit

@@ -5,15 +5,18 @@ add an extra separator/spacing between the rows of a definition list (only for
 tabular layout). In the future, it may be expanded with something analogous for
 help sections.
 """
+from __future__ import annotations
+
 import abc
 import sys
+from collections.abc import Sequence
 from itertools import zip_longest
-from typing import Optional, Sequence, Union
+from typing import Union
 
 if sys.version_info[:2] >= (3, 8):
     from typing import Protocol
 else:  # pragma: no cover
-    from typing_extensions import Protocol
+    from typing import Protocol
 
 SepType = Union[str, 'SepGenerator']
 
@@ -49,12 +52,12 @@ class RowSepPolicy(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def __call__(  # noqa E704
+    def __call__(  # E704
         self,
         rows: Sequence[Sequence[str]],
         col_widths: Sequence[int],
         col_spacing: int,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Decide which row separator to use (eventually none) in the given
         definition list."""
 
@@ -63,7 +66,7 @@ class RowSepCondition(Protocol):
     """Determines when a definition list should use a row separator."""
 
     # Ignore error due to flake8 issue: "multiple statements on one line (def)"
-    def __call__(  # noqa E704
+    def __call__(  # E704
         self,
         rows: Sequence[Sequence[str]],
         col_widths: Sequence[int],
@@ -96,7 +99,7 @@ class RowSepIf(RowSepPolicy):
         The empty string corresponds to an empty line separator.
     """
 
-    def __init__(self, condition: RowSepCondition, sep: Union[str, SepGenerator] = ''):
+    def __init__(self, condition: RowSepCondition, sep: str | SepGenerator = ''):
         if isinstance(sep, str) and sep.endswith('\n'):
             raise ValueError(
                 "sep must not end with '\\n'. The formatter writes  a '\\n' after it; " 'no other newline is allowed.'
@@ -104,7 +107,7 @@ class RowSepIf(RowSepPolicy):
         self.condition = condition
         self.sep = sep
 
-    def __call__(self, rows: Sequence[Sequence[str]], col_widths: Sequence[int], col_spacing: int) -> Optional[str]:
+    def __call__(self, rows: Sequence[Sequence[str]], col_widths: Sequence[int], col_spacing: int) -> str | None:
         if self.condition(rows, col_widths, col_spacing):
             if callable(self.sep):
                 total_width = get_total_width(col_widths, col_spacing)
@@ -130,7 +133,7 @@ def count_multiline_rows(rows: Sequence[Sequence[str]], col_widths: Sequence[int
     return sum(any(len(col_text) > col_width for col_text, col_width in zip_longest(row, col_widths)) for row in rows)
 
 
-def multiline_rows_are_at_least(count_or_percentage: Union[int, float]) -> RowSepCondition:
+def multiline_rows_are_at_least(count_or_percentage: int | float) -> RowSepCondition:
     """
     Return a ``RowSepStrategy`` that returns a row separator between all rows
     of a definition list, only if the number of rows taking multiple lines is
@@ -192,10 +195,10 @@ class Hline(SepGenerator):
     """
 
     # Workaround: PyCharm auto-completion doesn't work without these declarations
-    solid: 'Hline'
-    dashed: 'Hline'
-    densely_dashed: 'Hline'
-    dotted: 'Hline'
+    solid: Hline
+    dashed: Hline
+    densely_dashed: Hline
+    dotted: Hline
 
     def __init__(self, pattern: str):
         self.pattern = pattern

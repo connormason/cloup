@@ -1,11 +1,16 @@
-from typing import Optional
+from __future__ import annotations
 
 import click
 import pytest
 
 import cloup
-from cloup import Color, Group, HelpTheme, Style
-from cloup._util import first_bool, identity, reindent
+from cloup import Color
+from cloup import Group
+from cloup import HelpTheme
+from cloup import Style
+from cloup._util import first_bool
+from cloup._util import identity
+from cloup._util import reindent
 from cloup.styling import IStyle
 from cloup.typing import MISSING
 
@@ -177,22 +182,22 @@ def test_alias_are_correctly_styled(runner):
     red = Style(fg=Color.red)
     green = Style(fg=Color.green)
 
-    def fmt(alias: IStyle = identity, alias_secondary: Optional[IStyle] = None):
+    def fmt(alias: IStyle = identity, alias_secondary: IStyle | None = None):
         theme = HelpTheme(alias=alias, alias_secondary=alias_secondary)
-        return Group.format_subcommand_aliases(["i", "add"], theme)
+        return Group.format_subcommand_aliases(['i', 'add'], theme)
 
     # No styles (default theme)
-    assert fmt() == "(i, add)"
+    assert fmt() == '(i, add)'
 
     # Only theme.alias
     assert fmt(alias=green) == f"{green('(i, add)')}"
 
     # Only theme.alias_secondary
     assert fmt(alias_secondary=green) == (
-        green("(") + "i" + green(", ") + "add" + green(")")
+        green('(') + 'i' + green(', ') + 'add' + green(')')
     )
 
     # Both
     assert fmt(alias=red, alias_secondary=green) == (
-        green("(") + red("i") + green(", ") + red("add") + green(")")
+        green('(') + red('i') + green(', ') + red('add') + green(')')
     )

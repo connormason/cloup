@@ -4,10 +4,12 @@ This example:
 - was written in response to a StackOverflow question, not because I think it's
   a good idea to have groups with default command; I tend to not recommend them.
 """
+from __future__ import annotations
+
 import click
+from click_default_group import DefaultGroup
 
 import cloup
-from click_default_group import DefaultGroup
 
 
 class GroupWithDefaultCommand(cloup.Group, DefaultGroup):
@@ -17,7 +19,7 @@ class GroupWithDefaultCommand(cloup.Group, DefaultGroup):
         self, ctx: click.Context, name: str, cmd: click.Command
     ) -> str:
         if name == self.default_cmd_name:
-            name = name + "*"
+            name = name + '*'
         return super().format_subcommand_name(ctx, name, cmd)
 
 
@@ -27,15 +29,15 @@ def cli():
 
 
 @cli.command()
-@cloup.option("--foo")
+@cloup.option('--foo')
 def alice(**kwargs):
-    print("Called alice with", kwargs)
+    print('Called alice with', kwargs)
 
 
 @cli.command()
-@cloup.option("--bar")
+@cloup.option('--bar')
 def bob(**kwargs):
-    print("Called bob with", kwargs)
+    print('Called bob with', kwargs)
 
 
 if __name__ == '__main__':

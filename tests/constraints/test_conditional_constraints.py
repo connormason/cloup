@@ -1,23 +1,31 @@
+from __future__ import annotations
+
 from itertools import combinations
-from typing import Optional
 from unittest.mock import Mock
 
 import pytest
 from click import Context
 from pytest import mark
 
-from cloup.constraints import ConstraintViolated, If
-from cloup.constraints.conditions import (
-    AllSet, AnySet, Equal, IsSet, Predicate, _And, _Or
-)
+from cloup.constraints import ConstraintViolated
+from cloup.constraints import If
+from cloup.constraints.conditions import _And
+from cloup.constraints.conditions import _Or
+from cloup.constraints.conditions import AllSet
+from cloup.constraints.conditions import AnySet
+from cloup.constraints.conditions import Equal
+from cloup.constraints.conditions import IsSet
+from cloup.constraints.conditions import Predicate
 from tests.constraints.test_constraints import FakeConstraint
-from tests.util import make_context, parametrize, mock_repr
+from tests.util import make_context
+from tests.util import mock_repr
+from tests.util import parametrize
 
 
 class FakePredicate(Predicate):
     def __init__(self, value: bool = True,
                  desc: str = 'description',
-                 neg_desc: Optional[str] = None):
+                 neg_desc: str | None = None):
         self.value = value
         self._desc = desc
         self._neg_desc = neg_desc

@@ -1,23 +1,27 @@
 """
 Tip: in your editor, set a ruler at 80 characters.
 """
+from __future__ import annotations
+
 import inspect
 from textwrap import dedent
-from typing import Optional
 
 import click
 import pytest
 
 from cloup import HelpFormatter
-from cloup.formatting import HelpSection, unstyled_len
-from cloup.formatting.sep import (
-    Hline, RowSepIf, RowSepPolicy, multiline_rows_are_at_least
-)
-from cloup.styling import HelpTheme, Style
+from cloup.formatting import HelpSection
+from cloup.formatting import unstyled_len
+from cloup.formatting.sep import Hline
+from cloup.formatting.sep import multiline_rows_are_at_least
+from cloup.formatting.sep import RowSepIf
+from cloup.formatting.sep import RowSepPolicy
+from cloup.styling import HelpTheme
+from cloup.styling import Style
 from cloup.typing import Possibly
 from tests.util import parametrize
 
-LOREM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor."
+LOREM = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.'
 ROWS = [
     ('-l, --long-option-name TEXT', LOREM),
     ('--another-option INT', LOREM),
@@ -136,7 +140,7 @@ def test_fixed_row_sep(row_sep):
         None,
         id='no_sep'),
 )
-def test_conditional_row_sep(policy: RowSepPolicy, expected_sep: Optional[str]):
+def test_conditional_row_sep(policy: RowSepPolicy, expected_sep: str | None):
     formatter = HelpFormatter(
         width=80, col1_max_width=30, col2_min_width=0, col_spacing=3,
         row_sep=policy,

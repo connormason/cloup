@@ -1,24 +1,21 @@
+from __future__ import annotations
+
 from collections import OrderedDict
-from typing import (
-    Any,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-)
+from collections.abc import Iterable
+from collections.abc import Sequence
+from typing import Any
+from typing import TypeVar
+from typing import Union
 
 import click
 
-from cloup._util import first_bool, pick_not_none
-from cloup.formatting import HelpSection, ensure_is_cloup_formatter
+from cloup._util import first_bool
+from cloup._util import pick_not_none
+from cloup.formatting import ensure_is_cloup_formatter
+from cloup.formatting import HelpSection
 
-CommandType = TypeVar('CommandType', bound=Type[click.Command])
-Subcommands = Union[Iterable[click.Command], Dict[str, click.Command]]
+CommandType = TypeVar('CommandType', bound=type[click.Command])
+Subcommands = Union[Iterable[click.Command], dict[str, click.Command]]
 
 
 class Section:
@@ -34,7 +31,7 @@ class Section:
         introduced the new name ``Section`` and deprecated the old ``GroupSection``.
     """
 
-    def __init__(self, title: str, commands: Subcommands = (), is_sorted: bool = False):  # noqa
+    def __init__(self, title: str, commands: Subcommands = (), is_sorted: bool = False):
         """
         :param title:
         :param commands: sequence of commands or dict of commands keyed by name
@@ -56,10 +53,10 @@ class Section:
             raise TypeError('argument `commands` must be a sequence of commands ' 'or a dict of commands keyed by name')
 
     @classmethod
-    def sorted(cls, title: str, commands: Subcommands = ()) -> 'Section':
+    def sorted(cls, title: str, commands: Subcommands = ()) -> Section:
         return cls(title, commands, is_sorted=True)
 
-    def add_command(self, cmd: click.Command, name: Optional[str] = None) -> None:
+    def add_command(self, cmd: click.Command, name: str | None = None) -> None:
         name = name or cmd.name
         if not name:
             raise TypeError('missing command name')
@@ -67,7 +64,7 @@ class Section:
             raise Exception(f'command "{name}" already exists')
         self.commands[name] = cmd
 
-    def list_commands(self) -> List[Tuple[str, click.Command]]:
+    def list_commands(self) -> list[tuple[str, click.Command]]:
         command_list = [(name, cmd) for name, cmd in self.commands.items() if not cmd.hidden]
         if self.is_sorted:
             command_list.sort()
@@ -77,7 +74,7 @@ class Section:
         return len(self.commands)
 
     def __repr__(self) -> str:
-        return 'Section({}, is_sorted={})'.format(self.title, self.is_sorted)
+        return f'Section({self.title}, is_sorted={self.is_sorted})'
 
 
 class SectionMixin:
@@ -110,9 +107,9 @@ class SectionMixin:
     def __init__(
         self,
         *args: Any,
-        commands: Optional[Dict[str, click.Command]] = None,
+        commands: dict[str, click.Command] | None = None,
         sections: Iterable[Section] = (),
-        align_sections: Optional[bool] = None,
+        align_sections: bool | None = None,
         **kwargs: Any,
     ):
         """
@@ -130,13 +127,13 @@ class SectionMixin:
         super().__init__(*args, commands=commands, **kwargs)  # type: ignore
         self.align_sections = align_sections
         self._default_section = Section('__DEFAULT', commands=commands or [])
-        self._user_sections: List[Section] = []
+        self._user_sections: list[Section] = []
         self._section_set = {self._default_section}
         for section in sections:
             self.add_section(section)
 
     def _add_command_to_section(
-        self, cmd: click.Command, name: Optional[str] = None, section: Optional[Section] = None
+        self, cmd: click.Command, name: str | None = None, section: Section | None = None
     ) -> None:
         """Add a command to the section (if specified) or to the default section."""
         name = name or cmd.name
@@ -168,8 +165,8 @@ class SectionMixin:
     def add_command(
         self,
         cmd: click.Command,
-        name: Optional[str] = None,
-        section: Optional[Section] = None,
+        name: str | None = None,
+        section: Section | None = None,
         fallback_to_default_section: bool = True,
     ) -> None:
         """
@@ -194,7 +191,7 @@ class SectionMixin:
         if section or fallback_to_default_section:
             self._add_command_to_section(cmd, name, section)
 
-    def list_sections(self, ctx: click.Context, include_default_section: bool = True) -> List[Section]:
+    def list_sections(self, ctx: click.Context, include_default_section: bool = True) -> list[Section]:
         """
         Return the list of all sections in the "correct order".
 
@@ -219,7 +216,7 @@ class SectionMixin:
         """
         return name
 
-    def make_commands_help_section(self, ctx: click.Context, section: Section) -> Optional[HelpSection]:
+    def make_commands_help_section(self, ctx: click.Context, section: Section) -> HelpSection | None:
         visible_subcommands = section.list_commands()
         if not visible_subcommands:
             return None
@@ -231,7 +228,7 @@ class SectionMixin:
             ],
         )
 
-    def must_align_sections(self, ctx: Optional[click.Context], default: bool = True) -> bool:
+    def must_align_sections(self, ctx: click.Context | None, default: bool = True) -> bool:
         return first_bool(
             self.align_sections,
             getattr(ctx, 'align_sections', None),

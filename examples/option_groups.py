@@ -6,15 +6,21 @@ NOTE: the goal of this example is to showcase Cloup's option groups and constrai
     of the library (in fact, you should always design your CLI so that it doesn't
     need constraints).
 """
+from __future__ import annotations
+
 from pprint import pprint
 
 from click import Choice
 
 import cloup
-from cloup import option, option_group
-from cloup.constraints import (
-    Equal, If, RequireAtLeast, RequireExactly, constraint, mutually_exclusive,
-)
+from cloup import option
+from cloup import option_group
+from cloup.constraints import constraint
+from cloup.constraints import Equal
+from cloup.constraints import If
+from cloup.constraints import mutually_exclusive
+from cloup.constraints import RequireAtLeast
+from cloup.constraints import RequireExactly
 
 
 @cloup.command(name='cloup', show_constraints=True)
@@ -23,7 +29,7 @@ from cloup.constraints import (
 @option_group(
     'First group title',
     "This is a very long description of the option group. I don't think this is "
-    "needed very often; still, if you want to provide it, you can pass it as 2nd "
+    'needed very often; still, if you want to provide it, you can pass it as 2nd '
     "positional argument or as keyword argument 'help' after all options.",
     option('-o', '--one', help='a 1st cool option'),
     option('-t', '--two', help='a 2nd cool option'),

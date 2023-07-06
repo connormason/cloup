@@ -22,31 +22,28 @@ verbose. The ``@overload`` is on the ``cls`` argument:
 
 When and if the MyPy issue is resolved, the overloads will be removed.
 """
+from __future__ import annotations
+
 import inspect
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    NamedTuple,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-    cast,
-    overload,
-)
+from collections.abc import Iterable
+from collections.abc import Sequence
+from typing import Any
+from typing import Callable
+from typing import cast
+from typing import NamedTuple
+from typing import overload
+from typing import TypeVar
 
 import click
 
 import cloup
 from ._context import Context
 from ._option_groups import OptionGroupMixin
-from ._sections import Section, SectionMixin
-from ._util import click_version_ge_8_1, first_bool, reindent
+from ._sections import Section
+from ._sections import SectionMixin
+from ._util import click_version_ge_8_1
+from ._util import first_bool
+from ._util import reindent
 from .constraints import ConstraintMixin
 from .styling import DEFAULT_THEME
 from .typing import AnyCallable
@@ -73,20 +70,20 @@ class Command(ConstraintMixin, OptionGroupMixin, click.Command):
     .. versionadded:: 0.8.0
     """
 
-    context_class: Type[Context] = Context
+    context_class: type[Context] = Context
 
     def __init__(
         self,
         *args: Any,
-        aliases: Optional[Iterable[str]] = None,
-        formatter_settings: Optional[Dict[str, Any]] = None,
+        aliases: Iterable[str] | None = None,
+        formatter_settings: dict[str, Any] | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
         #: HelpFormatter options that are merged with ``Context.formatter_settings``
         #: (eventually overriding some values).
-        self.aliases: List[str] = [] if aliases is None else list(aliases)
-        self.formatter_settings: Dict[str, Any] = {} if formatter_settings is None else formatter_settings
+        self.aliases: list[str] = [] if aliases is None else list(aliases)
+        self.formatter_settings: dict[str, Any] = {} if formatter_settings is None else formatter_settings
 
     def get_normalized_epilog(self) -> str:
         if self.epilog and click_version_ge_8_1:
@@ -153,19 +150,19 @@ class Group(SectionMixin, Command, click.Group):
 
     SHOW_SUBCOMMAND_ALIASES: bool = False
 
-    def __init__(self, *args: Any, show_subcommand_aliases: Optional[bool] = None, **kwargs: Any):
+    def __init__(self, *args: Any, show_subcommand_aliases: bool | None = None, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.show_subcommand_aliases = show_subcommand_aliases
         """Whether to show subcommand aliases."""
 
-        self.alias2name: Dict[str, str] = {}
+        self.alias2name: dict[str, str] = {}
         """Dictionary mapping each alias to a command name."""
 
     def add_command(
         self,
         cmd: click.Command,
-        name: Optional[str] = None,
-        section: Optional[Section] = None,
+        name: str | None = None,
+        section: Section | None = None,
         fallback_to_default_section: bool = True,
     ) -> None:
         super().add_command(cmd, name, section, fallback_to_default_section)
@@ -174,7 +171,7 @@ class Group(SectionMixin, Command, click.Group):
         for alias in aliases:
             self.alias2name[alias] = name
 
-    def resolve_command_name(self, ctx: click.Context, name: str) -> Optional[str]:
+    def resolve_command_name(self, ctx: click.Context, name: str) -> str | None:
         """Map a string supposed to be a command name or an alias to a normalized
         command name. If no match is found, it returns ``None``."""
         if ctx.token_normalize_func:
@@ -184,8 +181,8 @@ class Group(SectionMixin, Command, click.Group):
         return self.alias2name.get(name)
 
     def resolve_command(
-        self, ctx: click.Context, args: List[str]
-    ) -> Tuple[Optional[str], Optional[click.Command], List[str]]:
+        self, ctx: click.Context, args: list[str]
+    ) -> tuple[str | None, click.Command | None, list[str]]:
         normalized_name = self.resolve_command_name(ctx, args[0])
         if normalized_name:
             # Replacing this string ensures that super().resolve_command() returns a
@@ -202,7 +199,7 @@ class Group(SectionMixin, Command, click.Group):
             raise new_error
 
     def handle_bad_command_name(
-        self, bad_name: str, valid_names: List[str], error: click.UsageError
+        self, bad_name: str, valid_names: list[str], error: click.UsageError
     ) -> click.UsageError:
         """This method is called when a command name cannot be resolved.
         Useful to implement the "Did you mean <x>?" feature.
@@ -260,58 +257,58 @@ class Group(SectionMixin, Command, click.Group):
     @overload  # type: ignore
     def command(  # Why overloading? Refer to module docstring.
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         *,
-        aliases: Optional[Iterable[str]] = None,
+        aliases: Iterable[str] | None = None,
         cls: None = None,  # Command is cloup.Command
-        section: Optional[Section] = None,
-        context_settings: Optional[Dict[str, Any]] = None,
-        formatter_settings: Optional[Dict[str, Any]] = None,
-        help: Optional[str] = None,
-        epilog: Optional[str] = None,
-        short_help: Optional[str] = None,
-        options_metavar: Optional[str] = '[OPTIONS]',
+        section: Section | None = None,
+        context_settings: dict[str, Any] | None = None,
+        formatter_settings: dict[str, Any] | None = None,
+        help: str | None = None,
+        epilog: str | None = None,
+        short_help: str | None = None,
+        options_metavar: str | None = '[OPTIONS]',
         add_help_option: bool = True,
         no_args_is_help: bool = False,
         hidden: bool = False,
         deprecated: bool = False,
-        align_option_groups: Optional[bool] = None,
-        show_constraints: Optional[bool] = None,
-        params: Optional[List[click.Parameter]] = None,
+        align_option_groups: bool | None = None,
+        show_constraints: bool | None = None,
+        params: list[click.Parameter] | None = None,
     ) -> Callable[[AnyCallable], Command]:
         ...
 
     @overload
     def command(  # Why overloading? Refer to module docstring.
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         *,
-        aliases: Optional[Iterable[str]] = None,
-        cls: Type[ClickCommand],
-        section: Optional[Section] = None,
-        context_settings: Optional[Dict[str, Any]] = None,
-        help: Optional[str] = None,
-        epilog: Optional[str] = None,
-        short_help: Optional[str] = None,
-        options_metavar: Optional[str] = '[OPTIONS]',
+        aliases: Iterable[str] | None = None,
+        cls: type[ClickCommand],
+        section: Section | None = None,
+        context_settings: dict[str, Any] | None = None,
+        help: str | None = None,
+        epilog: str | None = None,
+        short_help: str | None = None,
+        options_metavar: str | None = '[OPTIONS]',
         add_help_option: bool = True,
         no_args_is_help: bool = False,
         hidden: bool = False,
         deprecated: bool = False,
-        params: Optional[List[click.Parameter]] = None,
+        params: list[click.Parameter] | None = None,
         **kwargs: Any,
     ) -> Callable[[AnyCallable], ClickCommand]:
         ...
 
     def command(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         *,
-        aliases: Optional[Iterable[str]] = None,
-        cls: Optional[Type[ClickCommand]] = None,
-        section: Optional[Section] = None,
+        aliases: Iterable[str] | None = None,
+        cls: type[ClickCommand] | None = None,
+        section: Section | None = None,
         **kwargs: Any,
-    ) -> Callable[[AnyCallable], Union[Command, ClickCommand]]:
+    ) -> Callable[[AnyCallable], Command | ClickCommand]:
         """Return a decorator that creates a new subcommand of this ``Group``
         using the decorated function as callback.
 
@@ -325,7 +322,7 @@ class Group(SectionMixin, Command, click.Group):
         """
         make_command = command(name=name, cls=cls, aliases=aliases, **kwargs)
 
-        def decorator(f: AnyCallable) -> Union[Command, ClickCommand]:
+        def decorator(f: AnyCallable) -> Command | ClickCommand:
             cmd = make_command(f)
             self.add_command(cmd, section=section)
             return cmd
@@ -338,63 +335,63 @@ class Group(SectionMixin, Command, click.Group):
     @overload  # type: ignore
     def group(  # Why overloading? Refer to module docstring.
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         *,
-        aliases: Optional[Iterable[str]] = None,
+        aliases: Iterable[str] | None = None,
         cls: None = None,  # cls not provided
-        section: Optional[Section] = None,
+        section: Section | None = None,
         sections: Iterable[Section] = (),
-        align_sections: Optional[bool] = None,
+        align_sections: bool | None = None,
         invoke_without_command: bool = False,
         no_args_is_help: bool = False,
-        context_settings: Optional[Dict[str, Any]] = None,
-        formatter_settings: Dict[str, Any] = {},
-        help: Optional[str] = None,
-        epilog: Optional[str] = None,
-        short_help: Optional[str] = None,
-        options_metavar: Optional[str] = '[OPTIONS]',
-        subcommand_metavar: Optional[str] = None,
+        context_settings: dict[str, Any] | None = None,
+        formatter_settings: dict[str, Any] = {},
+        help: str | None = None,
+        epilog: str | None = None,
+        short_help: str | None = None,
+        options_metavar: str | None = '[OPTIONS]',
+        subcommand_metavar: str | None = None,
         add_help_option: bool = True,
         chain: bool = False,
         hidden: bool = False,
         deprecated: bool = False,
-    ) -> Callable[[AnyCallable], 'Group']:
+    ) -> Callable[[AnyCallable], Group]:
         ...
 
     @overload
     def group(  # Why overloading? Refer to module docstring.
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         *,
-        aliases: Optional[Iterable[str]] = None,
-        cls: Type[ClickGroup],
-        section: Optional[Section] = None,
+        aliases: Iterable[str] | None = None,
+        cls: type[ClickGroup],
+        section: Section | None = None,
         invoke_without_command: bool = False,
         no_args_is_help: bool = False,
-        context_settings: Optional[Dict[str, Any]] = None,
-        help: Optional[str] = None,
-        epilog: Optional[str] = None,
-        short_help: Optional[str] = None,
-        options_metavar: Optional[str] = '[OPTIONS]',
-        subcommand_metavar: Optional[str] = None,
+        context_settings: dict[str, Any] | None = None,
+        help: str | None = None,
+        epilog: str | None = None,
+        short_help: str | None = None,
+        options_metavar: str | None = '[OPTIONS]',
+        subcommand_metavar: str | None = None,
         add_help_option: bool = True,
         chain: bool = False,
         hidden: bool = False,
         deprecated: bool = False,
-        params: Optional[List[click.Parameter]] = None,
+        params: list[click.Parameter] | None = None,
         **kwargs: Any,
     ) -> Callable[[AnyCallable], ClickGroup]:
         ...
 
     def group(  # type: ignore
         self,
-        name: Optional[None] = None,
+        name: None | None = None,
         *,
-        cls: Optional[Type[ClickGroup]] = None,
-        aliases: Optional[Iterable[str]] = None,
-        section: Optional[Section] = None,
+        cls: type[ClickGroup] | None = None,
+        aliases: Iterable[str] | None = None,
+        section: Section | None = None,
         **kwargs: Any,
-    ) -> Callable[[AnyCallable], Union['Group', ClickGroup]]:
+    ) -> Callable[[AnyCallable], Group | ClickGroup]:
         """Return a decorator that creates a new subcommand of this ``Group``
         using the decorated function as callback.
 
@@ -408,7 +405,7 @@ class Group(SectionMixin, Command, click.Group):
         """
         make_group = group(name=name, cls=cls, aliases=aliases, **kwargs)
 
-        def decorator(f: AnyCallable) -> Union['Group', ClickGroup]:
+        def decorator(f: AnyCallable) -> Group | ClickGroup:
             cmd = make_group(f)
             self.add_command(cmd, section=section)
             return cmd
@@ -419,43 +416,43 @@ class Group(SectionMixin, Command, click.Group):
 # Why overloading? Refer to module docstring.
 @overload  # In this overload: "cls: None = None"
 def command(
-    name: Optional[str] = None,
+    name: str | None = None,
     *,
-    aliases: Optional[Iterable[str]] = None,
+    aliases: Iterable[str] | None = None,
     cls: None = None,
-    context_settings: Optional[Dict[str, Any]] = None,
-    formatter_settings: Optional[Dict[str, Any]] = None,
-    help: Optional[str] = None,
-    short_help: Optional[str] = None,
-    epilog: Optional[str] = None,
-    options_metavar: Optional[str] = '[OPTIONS]',
+    context_settings: dict[str, Any] | None = None,
+    formatter_settings: dict[str, Any] | None = None,
+    help: str | None = None,
+    short_help: str | None = None,
+    epilog: str | None = None,
+    options_metavar: str | None = '[OPTIONS]',
     add_help_option: bool = True,
     no_args_is_help: bool = False,
     hidden: bool = False,
     deprecated: bool = False,
-    align_option_groups: Optional[bool] = None,
-    show_constraints: Optional[bool] = None,
-    params: Optional[List[click.Parameter]] = None,
+    align_option_groups: bool | None = None,
+    show_constraints: bool | None = None,
+    params: list[click.Parameter] | None = None,
 ) -> Callable[[AnyCallable], Command]:
     ...
 
 
 @overload
 def command(  # In this overload: "cls: ClickCommand"
-    name: Optional[str] = None,
+    name: str | None = None,
     *,
-    aliases: Optional[Iterable[str]] = None,
-    cls: Type[ClickCommand],
-    context_settings: Optional[Dict[str, Any]] = None,
-    help: Optional[str] = None,
-    short_help: Optional[str] = None,
-    epilog: Optional[str] = None,
-    options_metavar: Optional[str] = '[OPTIONS]',
+    aliases: Iterable[str] | None = None,
+    cls: type[ClickCommand],
+    context_settings: dict[str, Any] | None = None,
+    help: str | None = None,
+    short_help: str | None = None,
+    epilog: str | None = None,
+    options_metavar: str | None = '[OPTIONS]',
     add_help_option: bool = True,
     no_args_is_help: bool = False,
     hidden: bool = False,
     deprecated: bool = False,
-    params: Optional[List[click.Parameter]] = None,
+    params: list[click.Parameter] | None = None,
     **kwargs: Any,
 ) -> Callable[[AnyCallable], ClickCommand]:
     ...
@@ -463,12 +460,12 @@ def command(  # In this overload: "cls: ClickCommand"
 
 # noinspection PyIncorrectDocstring
 def command(
-    name: Optional[str] = None,
+    name: str | None = None,
     *,
-    aliases: Optional[Iterable[str]] = None,
-    cls: Optional[Type[ClickCommand]] = None,
+    aliases: Iterable[str] | None = None,
+    cls: type[ClickCommand] | None = None,
     **kwargs: Any,
-) -> Callable[[AnyCallable], Union[Command, ClickCommand]]:
+) -> Callable[[AnyCallable], Command | ClickCommand]:
     """
     Return a decorator that creates a new command using the decorated function
     as callback.
@@ -577,56 +574,56 @@ def command(
 
 @overload  # Why overloading? Refer to module docstring.
 def group(
-    name: Optional[str] = None,
+    name: str | None = None,
     *,
     cls: None = None,
-    aliases: Optional[Iterable[str]] = None,
+    aliases: Iterable[str] | None = None,
     sections: Iterable[Section] = (),
-    align_sections: Optional[bool] = None,
+    align_sections: bool | None = None,
     invoke_without_command: bool = False,
     no_args_is_help: bool = False,
-    context_settings: Optional[Dict[str, Any]] = None,
-    formatter_settings: Dict[str, Any] = {},
-    help: Optional[str] = None,
-    short_help: Optional[str] = None,
-    epilog: Optional[str] = None,
-    options_metavar: Optional[str] = '[OPTIONS]',
-    subcommand_metavar: Optional[str] = None,
+    context_settings: dict[str, Any] | None = None,
+    formatter_settings: dict[str, Any] = {},
+    help: str | None = None,
+    short_help: str | None = None,
+    epilog: str | None = None,
+    options_metavar: str | None = '[OPTIONS]',
+    subcommand_metavar: str | None = None,
     add_help_option: bool = True,
     chain: bool = False,
     hidden: bool = False,
     deprecated: bool = False,
-    params: Optional[List[click.Parameter]] = None,
+    params: list[click.Parameter] | None = None,
 ) -> Callable[[AnyCallable], Group]:
     ...
 
 
 @overload
 def group(
-    name: Optional[str] = None,
+    name: str | None = None,
     *,
-    cls: Type[ClickGroup],
-    aliases: Optional[Iterable[str]] = None,
+    cls: type[ClickGroup],
+    aliases: Iterable[str] | None = None,
     invoke_without_command: bool = False,
     no_args_is_help: bool = False,
-    context_settings: Optional[Dict[str, Any]] = None,
-    help: Optional[str] = None,
-    short_help: Optional[str] = None,
-    epilog: Optional[str] = None,
-    options_metavar: Optional[str] = '[OPTIONS]',
-    subcommand_metavar: Optional[str] = None,
+    context_settings: dict[str, Any] | None = None,
+    help: str | None = None,
+    short_help: str | None = None,
+    epilog: str | None = None,
+    options_metavar: str | None = '[OPTIONS]',
+    subcommand_metavar: str | None = None,
     add_help_option: bool = True,
     chain: bool = False,
     hidden: bool = False,
     deprecated: bool = False,
-    params: Optional[List[click.Parameter]] = None,
+    params: list[click.Parameter] | None = None,
     **kwargs: Any,
 ) -> Callable[[AnyCallable], ClickGroup]:
     ...
 
 
 def group(
-    name: Optional[str] = None, *, cls: Optional[Type[ClickGroup]] = None, **kwargs: Any
+    name: str | None = None, *, cls: type[ClickGroup] | None = None, **kwargs: Any
 ) -> Callable[[AnyCallable], click.Group]:
     """
     Return a decorator that instantiates a ``Group`` (or a subclass of it)
@@ -713,7 +710,7 @@ def group(
 
 class _ArgInfo(NamedTuple):
     arg_name: str
-    requires: Type[Any]
+    requires: type[Any]
     supported_by: str = ''
 
 
@@ -728,7 +725,7 @@ _ARGS_INFO = {
 }
 
 
-def _process_unexpected_kwarg_error(error: TypeError, args_info: Dict[str, _ArgInfo], cls: Type[Command]) -> TypeError:
+def _process_unexpected_kwarg_error(error: TypeError, args_info: dict[str, _ArgInfo], cls: type[Command]) -> TypeError:
     """Check if the developer tried to pass a Cloup-specific argument to a ``cls``
     that doesn't support it and if that's the case, augments the error message
     to provide useful more info about the error."""

@@ -1,3 +1,4 @@
+from __future__ import annotations
 __all__ = ['AnyCallable', 'MISSING', 'Possibly', 'Decorator', 'F']
 
 from enum import Enum

@@ -1,4 +1,6 @@
 """Test for the "option groups" feature/module."""
+from __future__ import annotations
+
 from textwrap import dedent
 from typing import cast
 
@@ -7,16 +9,23 @@ import pytest
 from click import pass_context
 
 import cloup
-from cloup import OptionGroup, option, option_group
-from cloup._util import pick_non_missing, reindent
-from cloup.constraints import RequireAtLeast, mutually_exclusive
+from cloup import option
+from cloup import option_group
+from cloup import OptionGroup
+from cloup._util import pick_non_missing
+from cloup._util import reindent
+from cloup.constraints import mutually_exclusive
+from cloup.constraints import RequireAtLeast
 from cloup.typing import MISSING
-from tests.util import (make_options, new_dummy_func, parametrize, pick_first_bool)
+from tests.util import make_options
+from tests.util import new_dummy_func
+from tests.util import parametrize
+from tests.util import pick_first_bool
 
 
 def test_error_message_if_first_arg_is_not_a_string():
     with pytest.raises(
-        TypeError, match="the first argument of `@option_group` must be its title"
+        TypeError, match='the first argument of `@option_group` must be its title'
     ):
         @option_group(
             option('--one'),
@@ -185,7 +194,7 @@ def test_option_group_options_setter_set_the_hidden_attr_of_options():
 def test_option_group_with_constrained_subgroups(runner):
     @cloup.command()
     @option_group(
-        "Some options",
+        'Some options',
         RequireAtLeast(1)(
             option('-a', is_flag=True),
             option('-b', is_flag=True)
@@ -227,7 +236,7 @@ def test_option_group_with_constrained_subgroups(runner):
 def test_usage_of_constraints_as_decorators_inside_option_group(runner):
     @cloup.command()
     @cloup.option_group(
-        "Options",
+        'Options',
         mutually_exclusive(
             cloup.option('-a', is_flag=True),
             cloup.option('-b', is_flag=True),
@@ -280,12 +289,12 @@ def test_default_option_group_title_when_the_only_other_section_is_positional_ar
     runner
 ):
     @cloup.command()
-    @cloup.argument("arg", help="An argument.")
-    @cloup.option("--opt", help="An option.")
+    @cloup.argument('arg', help='An argument.')
+    @cloup.option('--opt', help='An option.')
     def cmd(**kwargs):
         pass
 
-    res = runner.invoke(cmd, ["--help"])
+    res = runner.invoke(cmd, ['--help'])
     assert res.output == reindent("""
         Usage: cmd [OPTIONS] ARG
 

@@ -5,21 +5,23 @@ as conditions of conditional constraints (see :class:`cloup.constraints.If`).
 Predicates should be treated as immutable objects, even though immutability
 is not (at the moment) enforced.
 """
+from __future__ import annotations
+
 import abc
-from typing import Any, Dict, Generic, TypeVar
+from typing import Any
+from typing import Generic
+from typing import TypeVar
 
 import click
 
-from ._support import ensure_constraints_support
-from .common import (
-    get_param_labels,
-    get_param_name,
-    join_with_and,
-    param_label_by_name,
-    param_value_by_name,
-    param_value_is_set,
-)
 from .._util import make_repr
+from ._support import ensure_constraints_support
+from .common import get_param_labels
+from .common import get_param_name
+from .common import join_with_and
+from .common import param_label_by_name
+from .common import param_value_by_name
+from .common import param_value_is_set
 
 P = TypeVar('P', bound='Predicate')
 
@@ -47,26 +49,26 @@ class Predicate(abc.ABC):
         """Short alias for :meth:`negated_description`."""
         return self.negated_description(ctx)
 
-    def negated(self) -> 'Predicate':
+    def negated(self) -> Predicate:
         return ~self
 
     @abc.abstractmethod
     def __call__(self, ctx: click.Context) -> bool:
         """Evaluate the predicate on the given context."""
 
-    def __invert__(self) -> 'Predicate':
+    def __invert__(self) -> Predicate:
         return Not(self)
 
-    def __or__(self, other: 'Predicate') -> 'Predicate':
+    def __or__(self, other: Predicate) -> Predicate:
         return _Or(self, other)
 
-    def __and__(self, other: 'Predicate') -> 'Predicate':
+    def __and__(self, other: Predicate) -> Predicate:
         return _And(self, other)
 
     def __repr__(self) -> str:
         return make_repr(self, *self._public_fields().values())
 
-    def _public_fields(self) -> Dict[str, Any]:
+    def _public_fields(self) -> dict[str, Any]:
         return {k: v for k, v in vars(self).items() if not k.startswith('_')}
 
     def __eq__(self, other: object) -> bool:
@@ -127,7 +129,7 @@ class _And(_Operator):
     def __call__(self, ctx: click.Context) -> bool:
         return all(p(ctx) for p in self.predicates)
 
-    def __and__(self, other: 'Predicate') -> Predicate:
+    def __and__(self, other: Predicate) -> Predicate:
         if isinstance(other, _And):
             return _And(*self.predicates, *other.predicates)
         return _And(*self.predicates, other)
@@ -146,7 +148,7 @@ class _Or(_Operator):
     def __call__(self, ctx: click.Context) -> bool:
         return any(p(ctx) for p in self.predicates)
 
-    def __or__(self, other: 'Predicate') -> Predicate:
+    def __or__(self, other: Predicate) -> Predicate:
         if isinstance(other, _Or):
             return _Or(*self.predicates, *other.predicates)
         return _Or(*self.predicates, other)

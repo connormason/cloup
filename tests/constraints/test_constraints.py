@@ -1,27 +1,32 @@
+from __future__ import annotations
+
+from collections.abc import Sequence
 from functools import partial
-from typing import Sequence
 from unittest import mock
 from unittest.mock import Mock
 
 import click
 import pytest
-from click import Command, Context, Parameter
+from click import Command
+from click import Context
+from click import Parameter
 from pytest import mark
 
-from cloup.constraints import (
-    AcceptAtMost,
-    AcceptBetween,
-    Constraint,
-    ErrorFmt,
-    Rephraser,
-    RequireAtLeast,
-    RequireExactly,
-    require_all,
-)
-from cloup.constraints.exceptions import ConstraintViolated, UnsatisfiableConstraint
-from tests.util import (
-    make_context, make_fake_context, make_options, parametrize, should_raise
-)
+from cloup.constraints import AcceptAtMost
+from cloup.constraints import AcceptBetween
+from cloup.constraints import Constraint
+from cloup.constraints import ErrorFmt
+from cloup.constraints import Rephraser
+from cloup.constraints import require_all
+from cloup.constraints import RequireAtLeast
+from cloup.constraints import RequireExactly
+from cloup.constraints.exceptions import ConstraintViolated
+from cloup.constraints.exceptions import UnsatisfiableConstraint
+from tests.util import make_context
+from tests.util import make_fake_context
+from tests.util import make_options
+from tests.util import parametrize
+from tests.util import should_raise
 
 
 class FakeConstraint(Constraint):
