@@ -10,6 +10,7 @@ from collections.abc import Sequence
 from typing import Any
 from typing import Callable
 from typing import overload
+from typing import TYPE_CHECKING
 
 import click
 from click import Option
@@ -24,6 +25,9 @@ from cloup.formatting import ensure_is_cloup_formatter
 from cloup.formatting import HelpSection
 from cloup.typing import Decorator
 from cloup.typing import F
+
+if TYPE_CHECKING:
+    from cloup._params import Argument
 
 
 # Takes the context as an input
@@ -205,12 +209,33 @@ class OptionGroupMixin:
         return arg.make_metavar(), ''
 
     def get_arguments_help_section(self, ctx: click.Context) -> HelpSection | None:
-        args_with_help = (arg for arg in self.arguments if getattr(arg, 'help', None))
-        if not any(args_with_help):
+        args_to_show: list[Argument] = []
+        for arg in self.arguments:
+
+            # `hidden` takes first priority
+            try:
+                hidden = getattr(arg, 'hidden')
+            except AttributeError:
+                pass
+            else:
+                if (hidden is not None) and (not hidden):
+                    args_to_show.append(arg)
+
+            # Only include arg if it has `help`
+            try:
+                help = getattr(arg, 'help')
+            except AttributeError:
+                pass
+            else:
+                if help is not None:
+                    args_to_show.append(arg)
+
+        if not any(args_to_show):
             return None
+
         return HelpSection(
             heading='Positional arguments',
-            definitions=[self.get_argument_help_record(arg, ctx) for arg in self.arguments],
+            definitions=[self.get_argument_help_record(arg, ctx) for arg in args_to_show],
         )
 
     def make_option_group_help_section(self, group: OptionGroup, ctx: click.Context) -> HelpSection:

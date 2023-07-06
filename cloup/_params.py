@@ -21,10 +21,22 @@ FC = TypeVar('FC', bound=Union[Callable[..., Any], 'Command'])
 class Argument(click.Argument):
     """
     A :class:`click.Argument` with help text.
+
+    :param help: help text shown next to argument
+    :param hidden: hide this argument from help output. If the argument has no help text, it is hidden by default, and
+                   setting this to True will show it. If the argument has help text, it is shown by default, and setting
+                   this to False will hide it
     """
-    def __init__(self, *args: Any, help: str | None = None, **attrs: Any):
+    def __init__(
+        self,
+        *args: Any,
+        help: str | None = None,
+        hidden: bool | None = None,
+        **attrs: Any
+    ):
         super().__init__(*args, **attrs)
         self.help = help
+        self.hidden = hidden
 
     def get_help_record(self, ctx: Context) -> tuple[str, str]:
         return self.make_metavar(), self.help or ''
