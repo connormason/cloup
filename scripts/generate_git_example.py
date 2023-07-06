@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import random
 from pathlib import Path
 
@@ -134,11 +136,11 @@ def generate(out_path=EXAMPLE_FILE_PATH,
     # Section list
     sections_buffer = []
     for title, commands in sections:
-        sections_buffer.append("git.section(")
-        sections_buffer.append(f"    {title!r},")
+        sections_buffer.append('git.section(')
+        sections_buffer.append(f'    {title!r},')
         for cmd_name, _ in commands:
             var_name = get_command_var_name(cmd_name)
-            sections_buffer.append(f"    {var_name},")
+            sections_buffer.append(f'    {var_name},')
         sections_buffer.append(')')
     section_list = '\n'.join(sections_buffer)
 

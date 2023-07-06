@@ -1,7 +1,9 @@
+from __future__ import annotations
+
+import argparse
 import os
 import shutil
 from glob import glob
-import argparse
 from itertools import chain
 
 parser = argparse.ArgumentParser(
@@ -15,7 +17,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('paths', nargs='+')
 parser.add_argument('-r', '--recursive', action='store_true',
                     help="Use recursive globs, i.e. the pattern '**' will match any "
-                         "files and zero or more directories and subdirectories.")
+                         'files and zero or more directories and subdirectories.')
 parser.add_argument('-d', '--dry-run', action='store_true',
                     help='Do not remove files, just print a list of them')
 

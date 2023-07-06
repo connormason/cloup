@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import shutil
 
 import click
-from click import argument, command
+from click import argument
+from click import command
 
 
 @command(no_args_is_help=True)

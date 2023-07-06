@@ -1,11 +1,16 @@
 """
 Example of option groups, "flat style".
 """
+from __future__ import annotations
+
 import click
 
 import cloup
-from cloup import OptionGroup, option
-from cloup.constraints import If, RequireAtLeast, mutually_exclusive
+from cloup import option
+from cloup import OptionGroup
+from cloup.constraints import If
+from cloup.constraints import mutually_exclusive
+from cloup.constraints import RequireAtLeast
 
 _input = OptionGroup(
     'Input options',

@@ -1,13 +1,17 @@
 """Test for the "subcommand sections" feature/module."""
+from __future__ import annotations
+
 import click
 import pytest
 from click import pass_context
 
 import cloup
 from cloup import Section
-from cloup._util import pick_non_missing, reindent
+from cloup._util import pick_non_missing
+from cloup._util import reindent
 from cloup.typing import MISSING
-from tests.util import new_dummy_func, pick_first_bool
+from tests.util import new_dummy_func
+from tests.util import pick_first_bool
 
 
 @pytest.mark.parametrize(
@@ -83,12 +87,12 @@ def test_align_sections_context_setting(runner, ctx_value, cmd_value):
         assert cmd.must_align_sections(ctx) == should_align
 
     cmd.section(
-        "First section",
+        'First section',
         cloup.command('cmd', help='First command help')(new_dummy_func()),
     )
 
     cmd.section(
-        "Second section",
+        'Second section',
         cloup.command('longer-cmd', help='Second command help')(new_dummy_func()),
     )
 
@@ -141,8 +145,8 @@ def test_override_format_subcommand_name(runner):
 
 
 def test_section_error_if_first_arg_is_not_a_string():
-    with pytest.raises(TypeError, match="the first argument must be a string"):
+    with pytest.raises(TypeError, match='the first argument must be a string'):
         Section([cloup.Command('cmd')])
     grp = cloup.Group()
-    with pytest.raises(TypeError, match="the first argument must be a string"):
+    with pytest.raises(TypeError, match='the first argument must be a string'):
         grp.section([cloup.Command('cmd')])

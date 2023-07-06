@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 import sys
 
@@ -7,4 +9,4 @@ for line in sys.stdin:
     match = regex.match(line)
     if match:
         target, help = match.groups()
-        print("%-20s %s" % (target, help))
+        print('%-20s %s' % (target, help))

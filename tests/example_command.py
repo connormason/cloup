@@ -1,11 +1,18 @@
-# flake8: noqa E128
+from __future__ import annotations
+
 from typing import cast
 
 import click
 
 import cloup
-from cloup import Command, HelpFormatter, argument, option, option_group
-from cloup.constraints import AcceptAtMost, If, RequireAtLeast
+from cloup import argument
+from cloup import Command
+from cloup import HelpFormatter
+from cloup import option
+from cloup import option_group
+from cloup.constraints import AcceptAtMost
+from cloup.constraints import If
+from cloup.constraints import RequireAtLeast
 
 
 def make_example_command(
@@ -21,9 +28,9 @@ def make_example_command(
         ),
         epilog='Made with love by Gianluca.'
     )
-    @argument("arg_one", help="This is the description of argument #1.")
-    @argument("arg_two", help="This is the description of argument #2.", required=False)
-    @argument("arg_three", required=False)
+    @argument('arg_one', help='This is the description of argument #1.')
+    @argument('arg_two', help='This is the description of argument #2.', required=False)
+    @argument('arg_three', required=False)
     @option_group(
         'Option group A',
         option('--one', help='The one thing you need to run this command.'),
@@ -31,9 +38,9 @@ def make_example_command(
                              'multiple lines so that the entire text stays inside '
                              'the allowed width.'),
         option('--three', help='The 3rd option of group A.'),
-        help="This is a very useful description of group A. This is a rarely used "
+        help='This is a very useful description of group A. This is a rarely used '
              "feature but, as the others, needs to be tested. I'm making this "
-             "unnecessarily long in order to test wrapping.",
+             'unnecessarily long in order to test wrapping.',
         constraint=AcceptAtMost(2)
     )
     @option_group(

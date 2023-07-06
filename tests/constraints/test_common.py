@@ -1,9 +1,19 @@
-from click import Argument, Option
+from __future__ import annotations
 
-from cloup.constraints.common import (
-    format_param, format_param_list, get_param_label, join_with_and, param_value_is_set,
-)
-from tests.util import bool_opt, flag_opt, int_opt, parametrize, multi_opt, tuple_opt
+from click import Argument
+from click import Option
+
+from cloup.constraints.common import format_param
+from cloup.constraints.common import format_param_list
+from cloup.constraints.common import get_param_label
+from cloup.constraints.common import join_with_and
+from cloup.constraints.common import param_value_is_set
+from tests.util import bool_opt
+from tests.util import flag_opt
+from tests.util import int_opt
+from tests.util import multi_opt
+from tests.util import parametrize
+from tests.util import tuple_opt
 
 
 @parametrize(

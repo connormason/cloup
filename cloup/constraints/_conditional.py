@@ -1,17 +1,22 @@
 """
 This modules contains classes for creating conditional constraints.
 """
-from typing import Optional, Sequence, Union
+from __future__ import annotations
 
-from click import Context, Parameter
+from typing import Sequence
 
-from ._core import Constraint
-from .conditions import AllSet, IsSet, Predicate
-from .exceptions import ConstraintViolated
+from click import Context
+from click import Parameter
+
 from .._util import make_repr
+from ._core import Constraint
+from .conditions import AllSet
+from .conditions import IsSet
+from .conditions import Predicate
+from .exceptions import ConstraintViolated
 
 
-def as_predicate(arg: Union[str, Sequence[str], Predicate]) -> Predicate:
+def as_predicate(arg: str | Sequence[str] | Predicate) -> Predicate:
     if isinstance(arg, str):
         return IsSet(arg)
     elif isinstance(arg, Predicate):
@@ -42,9 +47,9 @@ class If(Constraint):
 
     def __init__(
         self,
-        condition: Union[str, Sequence[str], Predicate],
+        condition: str | Sequence[str] | Predicate,
         then: Constraint,
-        else_: Optional[Constraint] = None,
+        else_: Constraint | None = None,
     ):
         self._condition = as_predicate(condition)
         self._then = then

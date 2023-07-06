@@ -1,23 +1,19 @@
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    NamedTuple,
-    Optional,
-    Sequence,
-    TYPE_CHECKING,
-    Tuple,
-    Union,
-)
+from __future__ import annotations
+
+from typing import Any
+from typing import Callable
+from typing import Iterable
+from typing import NamedTuple
+from typing import Sequence
+from typing import TYPE_CHECKING
 
 import click
 
+from .._util import first_bool
+from ..typing import Decorator
+from ..typing import F
 from ._core import Constraint
 from .common import join_param_labels
-from .._util import first_bool
-from ..typing import Decorator, F
 
 if TYPE_CHECKING:
     from cloup import HelpFormatter, OptionGroup
@@ -28,13 +24,13 @@ class BoundConstraintSpec(NamedTuple):
     it has to check."""
 
     constraint: Constraint
-    param_names: Union[Sequence[str]]
+    param_names: Sequence[str]
 
-    def resolve_params(self, cmd: 'ConstraintMixin') -> 'BoundConstraint':
+    def resolve_params(self, cmd: ConstraintMixin) -> BoundConstraint:
         return BoundConstraint(self.constraint, cmd.get_params_by_name(self.param_names))
 
 
-def _constraint_memo(f: Any, constr: Union[BoundConstraintSpec, 'BoundConstraint']) -> None:
+def _constraint_memo(f: Any, constr: BoundConstraintSpec | BoundConstraint) -> None:
     if not hasattr(f, '__cloup_constraints__'):
         f.__cloup_constraints__ = []
     f.__cloup_constraints__.append(constr)
@@ -115,7 +111,7 @@ class BoundConstraint(NamedTuple):
     def check_values(self, ctx: click.Context) -> None:
         self.constraint.check_values(self.params, ctx)
 
-    def get_help_record(self, ctx: click.Context) -> Optional[Tuple[str, str]]:
+    def get_help_record(self, ctx: click.Context) -> tuple[str, str] | None:
         constr_help = self.constraint.help(ctx)
         if not constr_help:
             return None
@@ -129,8 +125,8 @@ class ConstraintMixin:
     def __init__(
         self,
         *args: Any,
-        constraints: Sequence[Union[BoundConstraintSpec, BoundConstraint]] = (),
-        show_constraints: Optional[bool] = None,
+        constraints: Sequence[BoundConstraintSpec | BoundConstraint] = (),
+        show_constraints: bool | None = None,
         **kwargs: Any,
     ):
         """
@@ -153,18 +149,18 @@ class ConstraintMixin:
         self.show_constraints = show_constraints
 
         # This allows constraints to efficiently access parameters by name
-        self._params_by_name: Dict[str, click.Parameter] = {param.name: param for param in self.params}  # type: ignore
+        self._params_by_name: dict[str, click.Parameter] = {param.name: param for param in self.params}  # type: ignore
 
         # Collect constraints applied to option groups and bind them to the
         # corresponding Option instances
-        option_groups: Tuple[OptionGroup, ...] = getattr(self, 'option_groups', tuple())
+        option_groups: tuple[OptionGroup, ...] = getattr(self, 'option_groups', tuple())
         self.optgroup_constraints = tuple(
             BoundConstraint(grp.constraint, grp.options) for grp in option_groups if grp.constraint is not None
         )
         """Constraints applied to ``OptionGroup`` instances."""
 
         # Bind constraints defined via @constraint to click.Parameter instances
-        self.param_constraints: Tuple[BoundConstraint, ...] = tuple(
+        self.param_constraints: tuple[BoundConstraint, ...] = tuple(
             (constr if isinstance(constr, BoundConstraint) else constr.resolve_params(self)) for constr in constraints
         )
         """Constraints registered using ``@constraint`` (or equivalent method)."""
@@ -172,7 +168,7 @@ class ConstraintMixin:
         self.all_constraints = self.optgroup_constraints + self.param_constraints
         """All constraints applied to parameter/option groups of this command."""
 
-    def parse_args(self, ctx: click.Context, args: List[str]) -> List[str]:
+    def parse_args(self, ctx: click.Context, args: list[str]) -> list[str]:
         # Check constraints' consistency *before* parsing
         if not ctx.resilient_parsing and Constraint.must_check_consistency(ctx):
             for constr in self.all_constraints:
@@ -202,7 +198,7 @@ class ConstraintMixin:
     def get_params_by_name(self, names: Iterable[str]) -> Sequence[click.Parameter]:
         return tuple(self.get_param_by_name(name) for name in names)
 
-    def format_constraints(self, ctx: click.Context, formatter: 'HelpFormatter') -> None:
+    def format_constraints(self, ctx: click.Context, formatter: HelpFormatter) -> None:
         records_gen = (constr.get_help_record(ctx) for constr in self.param_constraints)
         records = [rec for rec in records_gen if rec is not None]
         if records:

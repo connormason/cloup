@@ -1,20 +1,18 @@
+from __future__ import annotations
+
 import dataclasses as dc
 import inspect
 import shutil
 import textwrap
 from itertools import chain
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    Iterator,
-    Optional,
-    Sequence,
-    TYPE_CHECKING,
-    Tuple,
-    Union,
-)
+from typing import Any
+from typing import Callable
+from typing import Iterable
+from typing import Iterator
+from typing import Sequence
+from typing import Tuple
+from typing import TYPE_CHECKING
+from typing import Union
 
 from cloup._util import click_version_ge_8_1
 from cloup.formatting._util import unstyled_len
@@ -49,10 +47,10 @@ class HelpSection:
     """Rows with 2 columns each. The 2nd element of each row can also be a function
     taking an integer (the available width for the 2nd column) and returning a string."""
 
-    help: Optional[str] = None
+    help: str | None = None
     """(Optional) long description of the section."""
 
-    constraint: Optional[str] = None
+    constraint: str | None = None
     """(Optional) option group constraint description."""
 
 
@@ -118,12 +116,12 @@ class HelpFormatter(click.HelpFormatter):
     def __init__(
         self,
         indent_increment: int = 2,
-        width: Optional[int] = None,
-        max_width: Optional[int] = None,
+        width: int | None = None,
+        max_width: int | None = None,
         col1_max_width: int = 30,
         col2_min_width: int = 35,
         col_spacing: int = 2,
-        row_sep: Union[None, str, 'SepGenerator', 'RowSepPolicy'] = None,
+        row_sep: None | str | SepGenerator | RowSepPolicy = None,
         theme: HelpTheme = HelpTheme(),
     ):
         check_positive_int(col1_max_width, 'col1_max_width')
@@ -153,15 +151,15 @@ class HelpFormatter(click.HelpFormatter):
     @staticmethod
     def settings(
         *,
-        width: Possibly[Optional[int]] = MISSING,
-        max_width: Possibly[Optional[int]] = MISSING,
+        width: Possibly[int | None] = MISSING,
+        max_width: Possibly[int | None] = MISSING,
         indent_increment: Possibly[int] = MISSING,
         col1_max_width: Possibly[int] = MISSING,
         col2_min_width: Possibly[int] = MISSING,
         col_spacing: Possibly[int] = MISSING,
-        row_sep: Possibly[Union[None, str, 'SepGenerator', 'RowSepPolicy']] = MISSING,
+        row_sep: Possibly[None | str | SepGenerator | RowSepPolicy] = MISSING,
         theme: Possibly[HelpTheme] = MISSING,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """A utility method for creating a ``formatter_settings`` dictionary to
         pass as context settings or command attribute. This method exists for
         one only reason: it enables auto-complete for formatter options, thus
@@ -178,7 +176,7 @@ class HelpFormatter(click.HelpFormatter):
     def write(self, *strings: str) -> None:
         self.buffer += strings
 
-    def write_usage(self, prog: str, args: str = '', prefix: Optional[str] = None) -> None:
+    def write_usage(self, prog: str, args: str = '', prefix: str | None = None) -> None:
         prefix = 'Usage:' if prefix is None else prefix
         prefix = self.theme.heading(prefix) + ' '
         prog = self.theme.invoked_command(prog)
@@ -226,7 +224,7 @@ class HelpFormatter(click.HelpFormatter):
         for s in sections:
             self.write_section(s, col1_width=col1_width)
 
-    def write_section(self, s: HelpSection, col1_width: Optional[int] = None) -> None:
+    def write_section(self, s: HelpSection, col1_width: int | None = None) -> None:
         theme = self.theme
         self.write('\n')
         self.write_heading(s.heading, newline=not s.constraint)
@@ -263,9 +261,9 @@ class HelpFormatter(click.HelpFormatter):
     def write_dl(
         self,
         rows: Sequence[Definition],
-        col_max: Optional[int] = None,  # default changed to None wrt parent class
-        col_spacing: Optional[int] = None,  # default changed to None wrt parent class
-        col1_width: Optional[int] = None,
+        col_max: int | None = None,  # default changed to None wrt parent class
+        col_spacing: int | None = None,  # default changed to None wrt parent class
+        col1_width: int | None = None,
     ) -> None:
         """Write a definition list into the buffer. This is how options
         and commands are usually formatted.
@@ -319,7 +317,7 @@ class HelpFormatter(click.HelpFormatter):
         text_rows: Sequence[Sequence[str]],
         col_widths: Sequence[int],
         col_spacing: int,
-    ) -> Optional[str]:
+    ) -> str | None:
         if self.row_sep is None or isinstance(self.row_sep, str):
             return self.row_sep
 
@@ -353,7 +351,7 @@ class HelpFormatter(click.HelpFormatter):
         row_sep = self._get_row_sep_for(text_rows, (col1_width, col2_width), col_spacing)
         col1_styler, col2_styler = self.theme.col1, self.theme.col2
 
-        def write_row(row: Tuple[str, str]) -> None:
+        def write_row(row: tuple[str, str]) -> None:
             first, second = row
             self.write(indentation, col1_styler(first))
             if not second:
@@ -415,7 +413,7 @@ class HelpFormatter(click.HelpFormatter):
         )
 
 
-def iter_defs(rows: Iterable[Definition], col2_width: int) -> Iterator[Tuple[str, str]]:
+def iter_defs(rows: Iterable[Definition], col2_width: int) -> Iterator[tuple[str, str]]:
     for row in rows:
         if len(row) == 1:
             yield row[0], ''

@@ -1,7 +1,10 @@
 #!/usr/bin/env python
+from __future__ import annotations
+
 from pathlib import Path
 
-from setuptools import find_packages, setup
+from setuptools import find_packages
+from setuptools import setup
 
 
 def make_long_description(write_file=False):
@@ -22,12 +25,12 @@ setup(
     },
     author='Gianluca Gippetto',
     author_email='gianluca.gippetto@gmail.com',
-    description="Adds features to Click: option groups, constraints, subcommand "
-                "sections and help themes.",
+    description='Adds features to Click: option groups, constraints, subcommand '
+                'sections and help themes.',
     long_description_content_type='text/x-rst',
     long_description=make_long_description(),
     url='https://github.com/janLuke/cloup',
-    license="BSD 3-Clause",
+    license='BSD 3-Clause',
     keywords=['CLI', 'click', 'argument groups', 'option groups', 'constraints',
               'help colors', 'help themes', 'help styles'],
     classifiers=[

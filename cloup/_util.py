@@ -1,19 +1,16 @@
 """Generic utilities."""
-from typing import (
-    Any,
-    Dict,
-    Hashable,
-    Iterable,
-    List,
-    Optional,
-    Sequence,
-    Type,
-    TypeVar,
-)
+from __future__ import annotations
+
+from typing import Any
+from typing import Hashable
+from typing import Iterable
+from typing import Sequence
+from typing import TypeVar
 
 import click
 
-from cloup.typing import MISSING, Possibly
+from cloup.typing import MISSING
+from cloup.typing import Possibly
 
 click_version_tuple = tuple(click.__version__.split('.'))
 click_major = int(click_version_tuple[0])
@@ -25,7 +22,7 @@ K = TypeVar('K', bound=Hashable)
 V = TypeVar('V')
 
 
-def pick_non_missing(d: Dict[K, Possibly[V]]) -> Dict[K, V]:
+def pick_non_missing(d: dict[K, Possibly[V]]) -> dict[K, V]:
     return {key: val for key, val in d.items() if val is not MISSING}
 
 
@@ -38,7 +35,7 @@ def check_arg(condition: bool, msg: str = '') -> None:
         raise ValueError(msg)
 
 
-def indent_lines(lines: Iterable[str], width: int = 2) -> List[str]:
+def indent_lines(lines: Iterable[str], width: int = 2) -> list[str]:
     spaces = ' ' * width
     return [spaces + line for line in lines]
 
@@ -93,7 +90,7 @@ def pluralize(
     return many.format(count=count)
 
 
-def coalesce(*values: Optional[T]) -> Optional[T]:
+def coalesce(*values: T | None) -> T | None:
     """Return the first value that is not ``None``
     (or ``None`` if no such value exists)."""
     return next((val for val in values if val is not None), None)
@@ -104,12 +101,12 @@ def first_bool(*values: Any) -> bool:
     return next(val for val in values if isinstance(val, bool))
 
 
-def pick_not_none(iterable: Iterable[Optional[T]]) -> List[T]:
+def pick_not_none(iterable: Iterable[T | None]) -> list[T]:
     return [x for x in iterable if x is not None]
 
 
 def check_positive_int(value: Any, arg_name: str) -> None:
-    error_type: Optional[Type[Exception]] = None
+    error_type: type[Exception] | None = None
     if not isinstance(value, int):
         error_type = TypeError
     elif value <= 0:
@@ -131,7 +128,7 @@ class FrozenSpaceMeta(type):
     def __setattr__(cls, key: str, value: Any) -> None:
         raise Exception("you can't set attributes on this class")
 
-    def asdict(cls) -> Dict[str, Any]:
+    def asdict(cls) -> dict[str, Any]:
         return cls._dict  # type: ignore
 
     def __contains__(cls, item: str) -> bool:
@@ -148,7 +145,7 @@ class FrozenSpace(metaclass=FrozenSpaceMeta):
         raise Exception("this class is just a namespace for constants, it's not instantiable.")
 
 
-def delete_keys(d: Dict[Any, Any], keys: Sequence[str]) -> None:
+def delete_keys(d: dict[Any, Any], keys: Sequence[str]) -> None:
     for key in keys:
         del d[key]
 

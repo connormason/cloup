@@ -1,37 +1,33 @@
+from __future__ import annotations
+
 import abc
-from typing import (
-    Any,
-    Callable,
-    Optional,
-    Sequence,
-    TypeVar,
-    Union,
-    cast,
-    overload,
-)
+from typing import Any
+from typing import Callable
+from typing import cast
+from typing import overload
+from typing import Sequence
+from typing import TypeVar
 
 import click
 
-from cloup._util import (
-    FrozenSpace,
-    check_arg,
-    class_name,
-    first_bool,
-    make_one_line_repr,
-    make_repr,
-    pluralize,
-    reindent,
-)
-from .common import (
-    format_param_list,
-    get_param_label,
-    get_param_name,
-    get_params_whose_value_is_set,
-    get_required_params,
-    param_value_is_set,
-)
-from .exceptions import ConstraintViolated, UnsatisfiableConstraint
-from ..typing import Decorator, F
+from ..typing import Decorator
+from ..typing import F
+from .common import format_param_list
+from .common import get_param_label
+from .common import get_param_name
+from .common import get_params_whose_value_is_set
+from .common import get_required_params
+from .common import param_value_is_set
+from .exceptions import ConstraintViolated
+from .exceptions import UnsatisfiableConstraint
+from cloup._util import check_arg
+from cloup._util import class_name
+from cloup._util import first_bool
+from cloup._util import FrozenSpace
+from cloup._util import make_one_line_repr
+from cloup._util import make_repr
+from cloup._util import pluralize
+from cloup._util import reindent
 
 Op = TypeVar('Op', bound='Operator')
 HelpRephraser = Callable[[click.Context, 'Constraint'], str]
@@ -115,15 +111,15 @@ class Constraint(abc.ABC):
         """
 
     @overload
-    def check(self, params: Sequence[click.Parameter], ctx: Optional[click.Context] = None) -> None:
+    def check(self, params: Sequence[click.Parameter], ctx: click.Context | None = None) -> None:
         ...
 
     @overload
-    def check(self, params: Sequence[str], ctx: Optional[click.Context] = None) -> None:
+    def check(self, params: Sequence[str], ctx: click.Context | None = None) -> None:
         ...
 
     def check(
-        self, params: Union[Sequence[click.Parameter], Sequence[str]], ctx: Optional[click.Context] = None
+        self, params: Sequence[click.Parameter] | Sequence[str], ctx: click.Context | None = None
     ) -> None:
         """
         Raise an exception if the constraint is not satisfied by the input
@@ -167,9 +163,9 @@ class Constraint(abc.ABC):
 
     def rephrased(
         self,
-        help: Union[None, str, HelpRephraser] = None,
-        error: Union[None, str, ErrorRephraser] = None,
-    ) -> 'Rephraser':
+        help: None | str | HelpRephraser = None,
+        error: None | str | ErrorRephraser = None,
+    ) -> Rephraser:
         """
         Override the help string and/or the error message of this constraint
         wrapping it with a :class:`Rephraser`.
@@ -192,7 +188,7 @@ class Constraint(abc.ABC):
         """
         return Rephraser(self, help=help, error=error)
 
-    def hidden(self) -> 'Rephraser':
+    def hidden(self) -> Rephraser:
         """Hide this constraint from the command help."""
         return Rephraser(self, help='')
 
@@ -226,10 +222,10 @@ class Constraint(abc.ABC):
             )
         return constrained_params(self, *param_adders)
 
-    def __or__(self, other: 'Constraint') -> 'Or':
+    def __or__(self, other: Constraint) -> Or:
         return Or(self, other)
 
-    def __and__(self, other: 'Constraint') -> 'And':
+    def __and__(self, other: Constraint) -> And:
         return And(self, other)
 
     def __repr__(self) -> str:
@@ -270,7 +266,7 @@ class And(Operator):
         for c in self.constraints:
             c.check_values(params, ctx)
 
-    def __and__(self, other: Constraint) -> 'And':
+    def __and__(self, other: Constraint) -> And:
         if isinstance(other, And):
             return And(*self.constraints, *other.constraints)
         return And(*self.constraints, other)
@@ -290,7 +286,7 @@ class Or(Operator):
                 pass
         raise ConstraintViolated.default(self.help(ctx), ctx=ctx, constraint=self, params=params)
 
-    def __or__(self, other: Constraint) -> 'Or':
+    def __or__(self, other: Constraint) -> Or:
         if isinstance(other, Or):
             return Or(*self.constraints, *other.constraints)
         return Or(*self.constraints, other)
@@ -333,8 +329,8 @@ class Rephraser(Constraint):
     def __init__(
         self,
         constraint: Constraint,
-        help: Union[None, str, HelpRephraser] = None,
-        error: Union[None, str, ErrorRephraser] = None,
+        help: None | str | HelpRephraser = None,
+        error: None | str | ErrorRephraser = None,
     ):
         if help is None and error is None:
             raise ValueError('`help` and `error` cannot both be `None`')
@@ -350,7 +346,7 @@ class Rephraser(Constraint):
         else:
             return self._help(ctx, self.constraint)
 
-    def _get_rephrased_error(self, err: ConstraintViolated) -> Optional[str]:
+    def _get_rephrased_error(self, err: ConstraintViolated) -> str | None:
         if self._error is None:
             return None
         elif isinstance(self._error, str):
@@ -529,7 +525,7 @@ class RequireExactly(WrapperConstraint):
 
 
 class AcceptBetween(WrapperConstraint):
-    def __init__(self, min: int, max: int):  # noqa
+    def __init__(self, min: int, max: int):
         """Satisfied if the number of set parameters is between
         ``min`` and ``max`` (included).
 

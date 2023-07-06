@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 import click
@@ -16,7 +18,7 @@ of extending `click.HelpFormatter`.
 """
 
 
-def ensure_is_cloup_formatter(formatter: click.HelpFormatter) -> 'cloup.HelpFormatter':
+def ensure_is_cloup_formatter(formatter: click.HelpFormatter) -> cloup.HelpFormatter:
     from cloup import HelpFormatter
 
     if isinstance(formatter, HelpFormatter):

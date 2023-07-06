@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 import inspect
 
 import click
 import pytest
 
-from cloup.styling import Color, HelpTheme, Style
+from cloup.styling import Color
+from cloup.styling import HelpTheme
+from cloup.styling import Style
 
 
 def test_help_theme_copywith():

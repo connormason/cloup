@@ -1,18 +1,25 @@
+from __future__ import annotations
+
 from unittest.mock import Mock
 
 import click
 import pytest
-from click import Argument, Option
+from click import Argument
+from click import Option
 
 import cloup
 from cloup import Context
-from cloup._util import pick_non_missing, reindent
-from cloup.constraints import (
-    Constraint, RequireAtLeast, mutually_exclusive, require_all, require_one
-)
+from cloup._util import pick_non_missing
+from cloup._util import reindent
+from cloup.constraints import Constraint
+from cloup.constraints import mutually_exclusive
+from cloup.constraints import require_all
+from cloup.constraints import require_one
+from cloup.constraints import RequireAtLeast
 from cloup.typing import MISSING
 from tests.constraints.test_constraints import FakeConstraint
-from tests.util import new_dummy_func, pick_first_bool
+from tests.util import new_dummy_func
+from tests.util import pick_first_bool
 
 
 class TestConstraintMixin:
@@ -32,10 +39,10 @@ class TestConstraintMixin:
         assert cmd.get_params_by_name(['arg1', 'option2']) == (params[0], params[2])
 
 
-@pytest.mark.parametrize('command_type', ["command", "group"])
+@pytest.mark.parametrize('command_type', ['command', 'group'])
 @pytest.mark.parametrize('do_check_consistency', [
-    pytest.param(True, id="with_consistency_checks"),
-    pytest.param(False, id="without_consistency_checks")
+    pytest.param(True, id='with_consistency_checks'),
+    pytest.param(False, id='without_consistency_checks')
 ])
 def test_constraints_are_checked_according_to_protocol(
     runner, command_type, do_check_consistency
@@ -46,7 +53,7 @@ def test_constraints_are_checked_according_to_protocol(
     ]
     settings = Context.settings(check_constraints_consistency=do_check_consistency)
 
-    command_decorator = cloup.group if command_type == "group" else cloup.command
+    command_decorator = cloup.group if command_type == 'group' else cloup.command
 
     @command_decorator(context_settings=settings)
     @cloup.option_group('first', cloup.option('--a'), cloup.option('--b'),
@@ -61,7 +68,7 @@ def test_constraints_are_checked_according_to_protocol(
 
     shell = '--a=1 --c=2'
     if isinstance(cmd, cloup.Group):
-        cmd.add_command(cloup.Command(name="dummy", callback=lambda: 0))
+        cmd.add_command(cloup.Command(name='dummy', callback=lambda: 0))
         shell += ' dummy'
 
     result = runner.invoke(cmd, args=shell.split())
@@ -76,7 +83,7 @@ def test_constraints_are_checked_according_to_protocol(
         constr.check_values.assert_called_once()
 
 
-@pytest.mark.parametrize('command_type', ["command", "group"])
+@pytest.mark.parametrize('command_type', ['command', 'group'])
 @pytest.mark.parametrize(
     'cmd_value', [MISSING, None, True, False],
     ids=lambda val: f'cmd_{val}'
@@ -98,7 +105,7 @@ def test_constraints_are_shown_in_help_only_if_feature_is_enabled(
         context_settings=cxt_settings
     ))
 
-    command_decorator = cloup.group if command_type == "group" else cloup.command
+    command_decorator = cloup.group if command_type == 'group' else cloup.command
 
     @command_decorator(**cmd_kwargs)
     @cloup.option('--a')
@@ -110,14 +117,14 @@ def test_constraints_are_shown_in_help_only_if_feature_is_enabled(
         pass
 
     if isinstance(cmd, cloup.Group):
-        cmd.add_command(cloup.Command(name="dummy", callback=lambda: 0))
+        cmd.add_command(cloup.Command(name='dummy', callback=lambda: 0))
 
     result = runner.invoke(cmd, args=['--help'],
                            catch_exceptions=False,
                            prog_name='test')
     out = result.output
 
-    if command_type == "group":
+    if command_type == 'group':
         if should_show:
             assert out == reindent("""
                 Usage: test [OPTIONS] COMMAND [ARGS]...
@@ -165,7 +172,7 @@ def test_constraints_are_shown_in_help_only_if_feature_is_enabled(
                   {--a, --b}  a constraint
                   {--b, --c}  another constraint
             """)
-            expected = base_help + "\n" + constraints_section
+            expected = base_help + '\n' + constraints_section
             assert out == expected
         else:
             assert out == base_help
@@ -202,16 +209,16 @@ def test_usage_of_constraints_as_decorators(runner):
 def test_group_constraints_doesnt_prevent_displaying_help_in_subcommand(runner):
     @cloup.group()
     @cloup.option_group(
-        "Credentials",
-        require_all(cloup.option("--user"), cloup.option("--password"))
+        'Credentials',
+        require_all(cloup.option('--user'), cloup.option('--password'))
     )
     def cli(user, password):
         """Top level group text."""
 
     @cli.group()
     @cloup.option_group(
-        "Required",
-        require_one(cloup.option("--foo"), cloup.option("--bar"))
+        'Required',
+        require_one(cloup.option('--foo'), cloup.option('--bar'))
     )
     def subgroup(foo, bar):
         """Subgroup help text."""
@@ -220,5 +227,5 @@ def test_group_constraints_doesnt_prevent_displaying_help_in_subcommand(runner):
     def subcommand():
         """Subcommand help text."""
 
-    res = runner.invoke(cli, ["subgroup", "subcommand", "--help"])
+    res = runner.invoke(cli, ['subgroup', 'subcommand', '--help'])
     assert res.exit_code == 0, res.output

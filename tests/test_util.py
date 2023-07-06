@@ -1,6 +1,11 @@
+from __future__ import annotations
+
 import pytest
 
-from cloup._util import check_positive_int, coalesce, first_bool, make_repr
+from cloup._util import check_positive_int
+from cloup._util import coalesce
+from cloup._util import first_bool
+from cloup._util import make_repr
 
 
 def test_make_repr():
@@ -12,11 +17,11 @@ def test_make_repr():
 
     r = make_repr([], 'arg', name='Alan', surname='Turing',
                   _line_len=n - 1, _indent=3)
-    assert r == ("list(\n"
+    assert r == ('list(\n'
                  "   'arg',\n"
                  "   name='Alan',\n"
                  "   surname='Turing'\n"
-                 ")")
+                 ')')
 
 
 def test_check_positive_int():

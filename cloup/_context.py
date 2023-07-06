@@ -1,19 +1,24 @@
+from __future__ import annotations
+
 import warnings
-from typing import Any, Callable, Dict, List, Optional, Type
+from typing import Any
+from typing import Callable
 
 import click
 
 import cloup
-from cloup._util import coalesce, pick_non_missing
+from cloup._util import coalesce
+from cloup._util import pick_non_missing
 from cloup.formatting import HelpFormatter
-from cloup.typing import MISSING, Possibly
+from cloup.typing import MISSING
+from cloup.typing import Possibly
 
 
 def _warn_if_formatter_settings_conflict(
     ctx_key: str,
     formatter_key: str,
-    ctx_kwargs: Dict[str, Any],
-    formatter_settings: Dict[str, Any],
+    ctx_kwargs: dict[str, Any],
+    formatter_settings: dict[str, Any],
 ) -> None:
     if ctx_kwargs.get(ctx_key) and formatter_settings.get(formatter_key):
         from textwrap import dedent
@@ -71,17 +76,17 @@ class Context(click.Context):
         keyword arguments forwarded to :class:`click.Context`.
     """
 
-    formatter_class: Type[HelpFormatter] = HelpFormatter
+    formatter_class: type[HelpFormatter] = HelpFormatter
 
     def __init__(
         self,
         *ctx_args: Any,
-        align_option_groups: Optional[bool] = None,
-        align_sections: Optional[bool] = None,
-        show_subcommand_aliases: Optional[bool] = None,
-        show_constraints: Optional[bool] = None,
-        check_constraints_consistency: Optional[bool] = None,
-        formatter_settings: Dict[str, Any] = {},
+        align_option_groups: bool | None = None,
+        align_sections: bool | None = None,
+        show_subcommand_aliases: bool | None = None,
+        show_constraints: bool | None = None,
+        check_constraints_consistency: bool | None = None,
+        formatter_settings: dict[str, Any] = {},
         **ctx_kwargs: Any,
     ):
         super().__init__(*ctx_args, **ctx_kwargs)
@@ -119,7 +124,7 @@ class Context(click.Context):
             **formatter_settings,
         }
 
-    def get_formatter_settings(self) -> Dict[str, Any]:
+    def get_formatter_settings(self) -> dict[str, Any]:
         return {
             'width': self.terminal_width,
             'max_width': self.max_content_width,
@@ -135,14 +140,14 @@ class Context(click.Context):
     def settings(
         *,
         auto_envvar_prefix: Possibly[str] = MISSING,
-        default_map: Possibly[Dict[str, Any]] = MISSING,
+        default_map: Possibly[dict[str, Any]] = MISSING,
         terminal_width: Possibly[int] = MISSING,
         max_content_width: Possibly[int] = MISSING,
         resilient_parsing: Possibly[bool] = MISSING,
         allow_extra_args: Possibly[bool] = MISSING,
         allow_interspersed_args: Possibly[bool] = MISSING,
         ignore_unknown_options: Possibly[bool] = MISSING,
-        help_option_names: Possibly[List[str]] = MISSING,
+        help_option_names: Possibly[list[str]] = MISSING,
         token_normalize_func: Possibly[Callable[[str], str]] = MISSING,
         color: Possibly[bool] = MISSING,
         show_default: Possibly[bool] = MISSING,
@@ -151,8 +156,8 @@ class Context(click.Context):
         show_subcommand_aliases: Possibly[bool] = MISSING,
         show_constraints: Possibly[bool] = MISSING,
         check_constraints_consistency: Possibly[bool] = MISSING,
-        formatter_settings: Possibly[Dict[str, Any]] = MISSING,
-    ) -> Dict[str, Any]:
+        formatter_settings: Possibly[dict[str, Any]] = MISSING,
+    ) -> dict[str, Any]:
         """Utility method for creating a ``context_settings`` dictionary.
 
         :param auto_envvar_prefix:

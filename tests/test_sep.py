@@ -1,10 +1,13 @@
+from __future__ import annotations
+
 from functools import partial
 
 import pytest
 
-from cloup.formatting.sep import (
-    Hline, RowSepIf, count_multiline_rows, multiline_rows_are_at_least
-)
+from cloup.formatting.sep import count_multiline_rows
+from cloup.formatting.sep import Hline
+from cloup.formatting.sep import multiline_rows_are_at_least
+from cloup.formatting.sep import RowSepIf
 
 # Use the same widths for both columns
 cols_width = 30
@@ -68,8 +71,8 @@ def test_value_error_if_sep_string_ends_with_newline():
 
 
 def test_Hline():
-    assert Hline.solid(5) == "─────"
-    assert Hline.dashed(5) == "-----"
-    assert Hline.densely_dashed(5) == "╌╌╌╌╌"
-    assert Hline.dotted(5) == "┄┄┄┄┄"
+    assert Hline.solid(5) == '─────'
+    assert Hline.dashed(5) == '-----'
+    assert Hline.densely_dashed(5) == '╌╌╌╌╌'
+    assert Hline.dotted(5) == '┄┄┄┄┄'
     assert Hline('-.')(5) == '-.-.-'

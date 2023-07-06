@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import annotations
 
 import os
 
@@ -21,13 +22,13 @@ extensions = [
 
 # General information about the project.
 project = 'cloup'
-copyright = "2020, Gianluca Gippetto"
-author = "Gianluca Gippetto"
-issues_github_path = "janLuke/cloup"
+copyright = '2020, Gianluca Gippetto'
+author = 'Gianluca Gippetto'
+issues_github_path = 'janLuke/cloup'
 
 extlinks = {
-    "issue": ("https://github.com/janLuke/cloup/issues/%s", "issue "),
-    "pr": ("https://github.com/janLuke/cloup/pull/%s", "pull request "),
+    'issue': ('https://github.com/janLuke/cloup/issues/%s', 'issue '),
+    'pr': ('https://github.com/janLuke/cloup/pull/%s', 'pull request '),
 }
 
 # The version info for the project you're documenting, acts as replacement
@@ -36,7 +37,7 @@ _version = tuple(map(str, cloup.__version_tuple__))
 version = '.'.join(_version[:2])
 release = '.'.join(_version[:3])
 
-language = "en"
+language = 'en'
 
 # Autodoc
 autoclass_content = 'both'
@@ -78,12 +79,12 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 
 # -- Options for HTML output ---------------------------------------------------
-html_title = f"cloup v{version}"
-html_theme = "furo"
+html_title = f'cloup v{version}'
+html_theme = 'furo'
 html_theme_options = {
-    "light_logo": "logo.svg",
-    "dark_logo": "logo-dark-mode.svg",
-    "sidebar_hide_name": True,
+    'light_logo': 'logo.svg',
+    'dark_logo': 'logo-dark-mode.svg',
+    'sidebar_hide_name': True,
 }
 html_css_files = [
     'styles/extensions-overrides.css',
@@ -96,23 +97,23 @@ pygments_style = 'default'  # name of the Pygments (syntax highlighting) style
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-primary_color = "#0094ff"
-darker_primary_color = "#007bd3"
+primary_color = '#0094ff'
+darker_primary_color = '#007bd3'
 def primary_color_alpha(alpha):
-    return "#2a5adf" + "{:02x}".format(int(alpha * 255))
+    return '#2a5adf' + f'{int(alpha * 255):02x}'
 
 panels_css_variables = {
-    "tabs-color-label-active": darker_primary_color,
-    "tabs-color-label-inactive": "var(--color-foreground-muted)",
-    "tabs-color-overline": "var(--tabs--border)",
-    "tabs-color-underline": "var(--tabs--border)",
+    'tabs-color-label-active': darker_primary_color,
+    'tabs-color-label-inactive': 'var(--color-foreground-muted)',
+    'tabs-color-overline': 'var(--tabs--border)',
+    'tabs-color-underline': 'var(--tabs--border)',
 }
 panels_add_bootstrap_css = False
 
 
 # -- Version warning -----------------------------------------------------------
 versionwarning_messages = {
-    "latest": (
+    'latest': (
         'This is the documentation for the main development branch of Cloup. '
         'The documentation for the latest stable release is '
         '<a href="/en/stable/">here</a>.'

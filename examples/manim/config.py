@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 import cloup
@@ -14,11 +16,11 @@ def config():
 
 @config.command(no_args_is_help=True)
 @cloup.option(
-    "-l", "--level",
-    type=cloup.Choice(["user", "cwd"], case_sensitive=False), default="cwd",
-    help="Specify if this config is for user or the working directory.",
+    '-l', '--level',
+    type=cloup.Choice(['user', 'cwd'], case_sensitive=False), default='cwd',
+    help='Specify if this config is for user or the working directory.',
 )
-@cloup.option("-o", "--open", "openfile", is_flag=True)
+@cloup.option('-o', '--open', 'openfile', is_flag=True)
 def write(level: str, openfile: bool) -> None:
     """Write configurations."""
 
@@ -29,6 +31,6 @@ def show():
 
 
 @config.command()
-@cloup.option("-d", "--directory", default=os.getcwd())
+@cloup.option('-d', '--directory', default=os.getcwd())
 def export(directory):
     pass

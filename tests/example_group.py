@@ -1,6 +1,9 @@
-# flake8: noqa E128
+from __future__ import annotations
+
 import cloup
-from cloup import Section, argument, option, option_group
+from cloup import option
+from cloup import option_group
+from cloup import Section
 
 
 def make_example_group(align_sections):
@@ -28,9 +31,9 @@ def make_example_group(align_sections):
         context_settings={'terminal_width': 80},
     )
     @option_group(
-        "Useful options",
-        option("-C", type=cloup.Path(), help="Configuration file."),
-        option("-p", "--paginate", is_flag=True, help="Paginate output."),
+        'Useful options',
+        option('-C', type=cloup.Path(), help='Configuration file.'),
+        option('-p', '--paginate', is_flag=True, help='Paginate output.'),
     )
     def git():
         return 0
