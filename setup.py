@@ -44,7 +44,7 @@ setup(
     packages=find_packages(include=['cloup', 'cloup.*']),
     zip_safe=False,
     include_package_data=True,
-    python_requires='>=3.7',
+    python_requires='>=3.9',
     install_requires=[
         'click >= 8.0, < 9.0',
         'typing_extensions; python_version<="3.8"',
