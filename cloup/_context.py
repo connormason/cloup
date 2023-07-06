@@ -81,15 +81,37 @@ class Context(click.Context):
     def __init__(
         self,
         *ctx_args: Any,
+        parent: Context | None = None,
         align_option_groups: bool | None = None,
         align_sections: bool | None = None,
         show_subcommand_aliases: bool | None = None,
         show_constraints: bool | None = None,
         check_constraints_consistency: bool | None = None,
         formatter_settings: dict[str, Any] = {},
+        max_content_width: int | None = None,                   # Here so we can change the defaults
+        help_option_names: list[str] | None = None,             # Here so we can change the defaults
         **ctx_kwargs: Any,
     ):
-        super().__init__(*ctx_args, **ctx_kwargs)
+
+        # Add -h as a default help option flag
+        if (help_option_names is None) and (parent is not None):
+            help_option_names = parent.help_option_names
+        elif help_option_names is None:
+            help_option_names = ['-h', '--help']
+
+        # Set max content width to a large number, no reason not to fill up the whole screen
+        if (max_content_width is None) and (parent is not None):
+            max_content_width = parent.max_content_width
+        elif max_content_width is None:
+            max_content_width = 500
+
+        super().__init__(
+            *ctx_args,
+            parent=parent,
+            help_option_names=help_option_names,
+            max_content_width=max_content_width,
+            **ctx_kwargs
+        )
 
         self.align_option_groups = coalesce(
             align_option_groups,
