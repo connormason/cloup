@@ -169,6 +169,7 @@ class ConstraintMixin:
         """All constraints applied to parameter/option groups of this command."""
 
     def parse_args(self, ctx: click.Context, args: list[str]) -> list[str]:
+
         # Check constraints' consistency *before* parsing
         if not ctx.resilient_parsing and Constraint.must_check_consistency(ctx):
             for constr in self.all_constraints:

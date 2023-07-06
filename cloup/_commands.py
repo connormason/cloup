@@ -53,7 +53,8 @@ ClickGroup = TypeVar('ClickGroup', bound=click.Group)
 
 
 class Command(ConstraintMixin, OptionGroupMixin, click.Command):
-    """A ``click.Command`` supporting option groups and constraints.
+    """
+    A ``click.Command`` supporting option groups and constraints.
 
     Refer to superclasses for the documentation of all accepted parameters:
 

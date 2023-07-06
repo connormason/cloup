@@ -26,11 +26,21 @@ from cloup.typing import Decorator
 from cloup.typing import F
 
 
+# Takes the context as an input
+PostParseCallback = Callable[[click.Context], None]
+
+
 class OptionGroup:
     def __init__(
-        self, title: str, help: str | None = None, constraint: Constraint | None = None, hidden: bool = False
+        self,
+        title: str,
+        help: str | None = None,
+        constraint: Constraint | None = None,
+        hidden: bool = False,
+        post_parse_callback: PostParseCallback | None = None,
     ):
-        """Contains the information of an option group and identifies it.
+        """
+        Contains the information of an option group and identifies it.
         Note that, as far as the clients of this library are concerned, an
         ``OptionGroups`` acts as a "marker" for options, not as a container for
         related options. When you call ``@optgroup.option(...)`` you are not
@@ -47,6 +57,7 @@ class OptionGroup:
         self._options: Sequence[click.Option] = []
         self.constraint = constraint
         self.hidden = hidden
+        self.post_parse_callback = post_parse_callback
 
     @property
     def options(self) -> Sequence[click.Option]:
@@ -98,7 +109,8 @@ def get_option_group_of(param: click.Option) -> OptionGroup | None:
 
 # noinspection PyMethodMayBeStatic
 class OptionGroupMixin:
-    """Implements support for:
+    """
+    Implements support for:
 
      - option groups
      - the "Positional arguments" help section; this section is shown only if
@@ -121,7 +133,6 @@ class OptionGroupMixin:
 
     .. versionadded:: 0.5.0
     """
-
     def __init__(self, *args: Any, align_option_groups: bool | None = None, **kwargs: Any) -> None:
         """
         :param align_option_groups:
@@ -177,9 +188,11 @@ class OptionGroupMixin:
         return arguments, option_groups, ungrouped_options
 
     def get_ungrouped_options(self, ctx: click.Context) -> Sequence[click.Option]:
-        """Return options not explicitly assigned to an option group
+        """
+        Return options not explicitly assigned to an option group
         (eventually including the ``--help`` option), i.e. options that will be
-        part of the "default option group"."""
+        part of the "default option group".
+        """
         help_option = ctx.command.get_help_option(ctx)
         if help_option is not None:
             return self.ungrouped_options + [help_option]
@@ -201,7 +214,8 @@ class OptionGroupMixin:
         )
 
     def make_option_group_help_section(self, group: OptionGroup, ctx: click.Context) -> HelpSection:
-        """Return a ``HelpSection`` for an ``OptionGroup``, i.e. an object containing
+        """
+        Return a ``HelpSection`` for an ``OptionGroup``, i.e. an object containing
         the title, the optional description and the options' definitions for
         this option group.
 
@@ -265,6 +279,16 @@ class OptionGroupMixin:
             aligned=self.must_align_option_groups(ctx),
         )
 
+    def parse_args(self, ctx: click.Context, args: list[str]) -> list[str]:
+        args = super().parse_args(ctx, args)        # type: ignore
+
+        # Run any post-parse callbacks from option groups attached to a command
+        for option_group in self.option_groups:
+            if option_group.post_parse_callback:
+                option_group.post_parse_callback(ctx)
+
+        return args
+
 
 @overload
 def option_group(
@@ -273,6 +297,7 @@ def option_group(
     *options: Decorator,
     constraint: Constraint | None = None,
     hidden: bool = False,
+    post_parse_callback: PostParseCallback | None = None,
 ) -> Callable[[F], F]:
     ...
 
@@ -284,6 +309,7 @@ def option_group(
     help: str | None = None,
     constraint: Constraint | None = None,
     hidden: bool = False,
+    post_parse_callback: PostParseCallback | None = None,
 ) -> Callable[[F], F]:
     ...
 
@@ -337,6 +363,7 @@ def _option_group(
     help: str | None = None,
     constraint: Constraint | None = None,
     hidden: bool = False,
+    post_parse_callback: PostParseCallback | None = None,
 ) -> Callable[[F], F]:
     if not isinstance(title, str):
         raise TypeError('the first argument of `@option_group` must be its title, a string; ' 'you probably forgot it')
@@ -345,7 +372,13 @@ def _option_group(
         raise ValueError('you must provide at least one option')
 
     def decorator(f: F) -> F:
-        opt_group = OptionGroup(title, help=help, constraint=constraint, hidden=hidden)
+        opt_group = OptionGroup(
+            title,
+            help=help,
+            constraint=constraint,
+            hidden=hidden,
+            post_parse_callback=post_parse_callback,
+        )
         if not hasattr(f, '__click_params__'):
             f.__click_params__ = []  # type: ignore
         cli_params = f.__click_params__  # type: ignore
