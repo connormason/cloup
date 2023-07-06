@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from functools import partial
-from typing import Sequence
 from unittest import mock
 from unittest.mock import Mock
 

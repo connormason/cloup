@@ -3,9 +3,9 @@ Useful functions used to implement constraints and predicates.
 """
 from __future__ import annotations
 
+from collections.abc import Iterable
+from collections.abc import Sequence
 from typing import Any
-from typing import Iterable
-from typing import Sequence
 
 from click import Argument
 from click import Context

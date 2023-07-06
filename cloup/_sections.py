@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 from collections import OrderedDict
+from collections.abc import Iterable
+from collections.abc import Sequence
 from typing import Any
-from typing import Dict
-from typing import Iterable
-from typing import Sequence
-from typing import Type
 from typing import TypeVar
 from typing import Union
 
@@ -16,8 +14,8 @@ from cloup._util import pick_not_none
 from cloup.formatting import ensure_is_cloup_formatter
 from cloup.formatting import HelpSection
 
-CommandType = TypeVar('CommandType', bound=Type[click.Command])
-Subcommands = Union[Iterable[click.Command], Dict[str, click.Command]]
+CommandType = TypeVar('CommandType', bound=type[click.Command])
+Subcommands = Union[Iterable[click.Command], dict[str, click.Command]]
 
 
 class Section:

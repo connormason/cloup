@@ -25,13 +25,13 @@ When and if the MyPy issue is resolved, the overloads will be removed.
 from __future__ import annotations
 
 import inspect
+from collections.abc import Iterable
+from collections.abc import Sequence
 from typing import Any
 from typing import Callable
 from typing import cast
-from typing import Iterable
 from typing import NamedTuple
 from typing import overload
-from typing import Sequence
 from typing import TypeVar
 
 import click

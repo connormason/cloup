@@ -4,13 +4,12 @@ import dataclasses as dc
 import inspect
 import shutil
 import textwrap
+from collections.abc import Iterable
+from collections.abc import Iterator
+from collections.abc import Sequence
 from itertools import chain
 from typing import Any
 from typing import Callable
-from typing import Iterable
-from typing import Iterator
-from typing import Sequence
-from typing import Tuple
 from typing import TYPE_CHECKING
 from typing import Union
 
@@ -33,7 +32,7 @@ from cloup._util import (
 from ..typing import MISSING, Possibly
 from cloup.styling import HelpTheme, IStyle
 
-Definition = Tuple[str, Union[str, Callable[[int], str]]]
+Definition = tuple[str, Union[str, Callable[[int], str]]]
 
 
 @dc.dataclass()

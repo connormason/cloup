@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import Iterable
-from typing import Sequence
+from collections.abc import Iterable
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 import click

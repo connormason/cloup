@@ -3,7 +3,7 @@ This modules contains classes for creating conditional constraints.
 """
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from click import Context
 from click import Parameter

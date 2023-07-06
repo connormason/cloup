@@ -1,10 +1,10 @@
 """Generic utilities."""
 from __future__ import annotations
 
+from collections.abc import Hashable
+from collections.abc import Iterable
+from collections.abc import Sequence
 from typing import Any
-from typing import Hashable
-from typing import Iterable
-from typing import Sequence
 from typing import TypeVar
 
 import click

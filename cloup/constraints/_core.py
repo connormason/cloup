@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import abc
+from collections.abc import Sequence
 from typing import Any
 from typing import Callable
 from typing import cast
 from typing import overload
-from typing import Sequence
 from typing import TypeVar
 
 import click

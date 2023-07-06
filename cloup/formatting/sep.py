@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import abc
 import sys
+from collections.abc import Sequence
 from itertools import zip_longest
-from typing import Sequence
 from typing import Union
 
 if sys.version_info[:2] >= (3, 8):

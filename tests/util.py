@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from contextlib import contextmanager
-from typing import Iterable
 from unittest.mock import Mock
 
 import click
