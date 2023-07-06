@@ -107,6 +107,7 @@ class Context(click.Context):
 
         super().__init__(
             *ctx_args,
+            parent=parent,
             help_option_names=help_option_names,
             max_content_width=max_content_width,
             **ctx_kwargs
