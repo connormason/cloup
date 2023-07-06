@@ -40,13 +40,10 @@ def get_param_name(param: Parameter) -> str:
     return param.name
 
 
-def get_params_whose_value_is_set(
-    params: Iterable[Parameter], values: Dict[str, Any]
-) -> List[Parameter]:
+def get_params_whose_value_is_set(params: Iterable[Parameter], values: Dict[str, Any]) -> List[Parameter]:
     """Filter ``params``, returning only the parameters that have a value.
     Boolean flags are considered "set" if their value is ``True``."""
-    return [p for p in params
-            if param_value_is_set(p, values[get_param_name(p)])]
+    return [p for p in params if param_value_is_set(p, values[get_param_name(p)])]
 
 
 def get_required_params(params: Iterable[Parameter]) -> List[Parameter]:
@@ -84,8 +81,7 @@ def format_param(param: Parameter) -> str:
 def format_param_list(param_list: Iterable[Parameter], indent: int = 2) -> str:
     lines = map(format_param, param_list)
     indentation = ' ' * indent
-    return ''.join(indentation + line + '\n'
-                   for line in lines)
+    return ''.join(indentation + line + '\n' for line in lines)
 
 
 def param_label_by_name(ctx: Any, name: str) -> str:

@@ -47,20 +47,20 @@ class Predicate(abc.ABC):
         """Short alias for :meth:`negated_description`."""
         return self.negated_description(ctx)
 
-    def negated(self) -> "Predicate":
+    def negated(self) -> 'Predicate':
         return ~self
 
     @abc.abstractmethod
     def __call__(self, ctx: click.Context) -> bool:
         """Evaluate the predicate on the given context."""
 
-    def __invert__(self) -> "Predicate":
+    def __invert__(self) -> 'Predicate':
         return Not(self)
 
-    def __or__(self, other: "Predicate") -> "Predicate":
+    def __or__(self, other: 'Predicate') -> 'Predicate':
         return _Or(self, other)
 
-    def __and__(self, other: "Predicate") -> "Predicate":
+    def __and__(self, other: 'Predicate') -> 'Predicate':
         return _And(self, other)
 
     def __repr__(self) -> str:
@@ -70,9 +70,7 @@ class Predicate(abc.ABC):
         return {k: v for k, v in vars(self).items() if not k.startswith('_')}
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, self.__class__) and (
-            self._public_fields() == other._public_fields()
-        )
+        return isinstance(other, self.__class__) and (self._public_fields() == other._public_fields())
 
 
 class Not(Predicate, Generic[P]):
@@ -99,6 +97,7 @@ class Not(Predicate, Generic[P]):
 
 class _Operator(Predicate, metaclass=abc.ABCMeta):
     """Operator between two or more predicates."""
+
     DESC_SEP: str
 
     def __init__(self, *predicates: Predicate):
@@ -108,9 +107,7 @@ class _Operator(Predicate, metaclass=abc.ABCMeta):
 
     def description(self, ctx: click.Context) -> str:
         return self.DESC_SEP.join(
-            '(%s)' % p.description(ctx) if isinstance(p, _Operator)
-            else p.description(ctx)
-            for p in self.predicates
+            '(%s)' % p.description(ctx) if isinstance(p, _Operator) else p.description(ctx) for p in self.predicates
         )
 
     def __repr__(self) -> str:
@@ -119,12 +116,12 @@ class _Operator(Predicate, metaclass=abc.ABCMeta):
 
 class _And(_Operator):
     """Logical AND of two or more predicates."""
+
     DESC_SEP = ' and '
 
     def negated_description(self, ctx: click.Context) -> str:
         return ' or '.join(
-            '(%s)' % p.neg_desc(ctx) if isinstance(p, _Operator) else p.neg_desc(ctx)
-            for p in self.predicates
+            '(%s)' % p.neg_desc(ctx) if isinstance(p, _Operator) else p.neg_desc(ctx) for p in self.predicates
         )
 
     def __call__(self, ctx: click.Context) -> bool:
@@ -138,12 +135,12 @@ class _And(_Operator):
 
 class _Or(_Operator):
     """Logical OR of two or more predicates."""
+
     DESC_SEP = ' or '
 
     def negated_description(self, ctx: click.Context) -> str:
         return ' and '.join(
-            '(%s)' % p.neg_desc(ctx) if isinstance(p, _Operator) else p.neg_desc(ctx)
-            for p in self.predicates
+            '(%s)' % p.neg_desc(ctx) if isinstance(p, _Operator) else p.neg_desc(ctx) for p in self.predicates
         )
 
     def __call__(self, ctx: click.Context) -> bool:
@@ -212,8 +209,7 @@ class AllSet(Predicate):
     def __call__(self, ctx: click.Context) -> bool:
         command = ensure_constraints_support(ctx.command)
         params = command.get_params_by_name(self.param_names)
-        return all(param_value_is_set(param, ctx.params[get_param_name(param)])
-                   for param in params)
+        return all(param_value_is_set(param, ctx.params[get_param_name(param)]) for param in params)
 
     def __and__(self, other: Predicate) -> Predicate:
         if isinstance(other, AllSet):
@@ -251,8 +247,7 @@ class AnySet(Predicate):
     def __call__(self, ctx: click.Context) -> bool:
         command = ensure_constraints_support(ctx.command)
         params = command.get_params_by_name(self.param_names)
-        return any(param_value_is_set(param, ctx.params[get_param_name(param)])
-                   for param in params)
+        return any(param_value_is_set(param, ctx.params[get_param_name(param)]) for param in params)
 
     def __or__(self, other: Predicate) -> Predicate:
         if isinstance(other, AnySet):

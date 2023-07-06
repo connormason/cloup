@@ -3,7 +3,16 @@ Implements the "option groups" feature.
 """
 from collections import defaultdict
 from typing import (
-    Any, Callable, Dict, Iterable, Iterator, List, Optional, Sequence, Tuple, overload,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    overload,
 )
 
 import click
@@ -18,10 +27,9 @@ from cloup.typing import Decorator, F
 
 
 class OptionGroup:
-    def __init__(self, title: str,
-                 help: Optional[str] = None,
-                 constraint: Optional[Constraint] = None,
-                 hidden: bool = False):
+    def __init__(
+        self, title: str, help: Optional[str] = None, constraint: Optional[Constraint] = None, hidden: bool = False
+    ):
         """Contains the information of an option group and identifies it.
         Note that, as far as the clients of this library are concerned, an
         ``OptionGroups`` acts as a "marker" for options, not as a container for
@@ -77,8 +85,7 @@ class OptionGroup:
         return make_repr(self, self.title, help=self.help, options=self.options)
 
     def __str__(self) -> str:
-        return make_repr(
-            self, self.title, options=[opt.name for opt in self.options])
+        return make_repr(self, self.title, options=[opt.name for opt in self.options])
 
 
 def has_option_group(param: click.Parameter) -> bool:
@@ -115,9 +122,7 @@ class OptionGroupMixin:
     .. versionadded:: 0.5.0
     """
 
-    def __init__(
-        self, *args: Any, align_option_groups: Optional[bool] = None, **kwargs: Any
-    ) -> None:
+    def __init__(self, *args: Any, align_option_groups: Optional[bool] = None, **kwargs: Any) -> None:
         """
         :param align_option_groups:
             whether to align the columns of all option groups' help sections.
@@ -150,9 +155,7 @@ class OptionGroupMixin:
         (which needs a ``Context`` object)."""
 
     @staticmethod
-    def _group_params(
-        params: List[Parameter]
-    ) -> Tuple[List[click.Argument], List[OptionGroup], List[Option]]:
+    def _group_params(params: List[Parameter]) -> Tuple[List[click.Argument], List[OptionGroup], List[Option]]:
 
         options_by_group: Dict[OptionGroup, List[click.Option]] = defaultdict(list)
         arguments: List[click.Argument] = []
@@ -183,27 +186,21 @@ class OptionGroupMixin:
         else:
             return self.ungrouped_options
 
-    def get_argument_help_record(
-        self, arg: click.Argument, ctx: click.Context
-    ) -> Tuple[str, str]:
+    def get_argument_help_record(self, arg: click.Argument, ctx: click.Context) -> Tuple[str, str]:
         if isinstance(arg, cloup.Argument):
             return arg.get_help_record(ctx)
-        return arg.make_metavar(), ""
+        return arg.make_metavar(), ''
 
     def get_arguments_help_section(self, ctx: click.Context) -> Optional[HelpSection]:
-        args_with_help = (arg for arg in self.arguments if getattr(arg, "help", None))
+        args_with_help = (arg for arg in self.arguments if getattr(arg, 'help', None))
         if not any(args_with_help):
             return None
         return HelpSection(
-            heading="Positional arguments",
-            definitions=[
-                self.get_argument_help_record(arg, ctx) for arg in self.arguments
-            ],
+            heading='Positional arguments',
+            definitions=[self.get_argument_help_record(arg, ctx) for arg in self.arguments],
         )
 
-    def make_option_group_help_section(
-        self, group: OptionGroup, ctx: click.Context
-    ) -> HelpSection:
+    def make_option_group_help_section(self, group: OptionGroup, ctx: click.Context) -> HelpSection:
         """Return a ``HelpSection`` for an ``OptionGroup``, i.e. an object containing
         the title, the optional description and the options' definitions for
         this option group.
@@ -214,12 +211,10 @@ class OptionGroupMixin:
             heading=group.title,
             definitions=group.get_help_records(ctx),
             help=group.help,
-            constraint=group.constraint.help(ctx) if group.constraint else None
+            constraint=group.constraint.help(ctx) if group.constraint else None,
         )
 
-    def must_align_option_groups(
-        self, ctx: Optional[click.Context], default: bool = True
-    ) -> bool:
+    def must_align_option_groups(self, ctx: Optional[click.Context], default: bool = True) -> bool:
         """
         Return ``True`` if the help sections of all options groups should have
         their columns aligned.
@@ -241,14 +236,11 @@ class OptionGroupMixin:
 
         .. versionadded:: 0.8.0
         """
-        default_group = OptionGroup(
-            "Options" if is_the_only_visible_option_group else "Other options")
+        default_group = OptionGroup('Options' if is_the_only_visible_option_group else 'Other options')
         default_group.options = self.get_ungrouped_options(ctx)
         return default_group
 
-    def format_params(
-        self, ctx: click.Context, formatter: click.HelpFormatter
-    ) -> None:
+    def format_params(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:
         formatter = ensure_is_cloup_formatter(formatter)
 
         visible_sections = []
@@ -260,16 +252,11 @@ class OptionGroupMixin:
 
         # Option groups
         option_group_sections = [
-            self.make_option_group_help_section(group, ctx)
-            for group in self.option_groups
-            if not group.hidden
+            self.make_option_group_help_section(group, ctx) for group in self.option_groups if not group.hidden
         ]
-        default_group = self.get_default_option_group(
-            ctx, is_the_only_visible_option_group=not option_group_sections
-        )
+        default_group = self.get_default_option_group(ctx, is_the_only_visible_option_group=not option_group_sections)
         if not default_group.hidden:
-            option_group_sections.append(
-                self.make_option_group_help_section(default_group, ctx))
+            option_group_sections.append(self.make_option_group_help_section(default_group, ctx))
 
         visible_sections += option_group_sections
 
@@ -352,10 +339,7 @@ def _option_group(
     hidden: bool = False,
 ) -> Callable[[F], F]:
     if not isinstance(title, str):
-        raise TypeError(
-            'the first argument of `@option_group` must be its title, a string; '
-            'you probably forgot it'
-        )
+        raise TypeError('the first argument of `@option_group` must be its title, a string; ' 'you probably forgot it')
 
     if not options:
         raise ValueError('you must provide at least one option')
@@ -371,8 +355,7 @@ def _option_group(
             added_options = cli_params[prev_len:]
             for new_option in added_options:
                 if not isinstance(new_option, Option):
-                    raise TypeError(
-                        "only parameter of type `Option` can be added to option groups")
+                    raise TypeError('only parameter of type `Option` can be added to option groups')
                 existing_group = get_option_group_of(new_option)
                 if existing_group is not None:
                     raise ValueError(

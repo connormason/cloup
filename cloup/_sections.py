@@ -1,6 +1,15 @@
 from collections import OrderedDict
 from typing import (
-    Any, Dict, Iterable, List, Optional, Sequence, Tuple, Type, TypeVar, Union,
+    Any,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
 )
 
 import click
@@ -25,9 +34,7 @@ class Section:
         introduced the new name ``Section`` and deprecated the old ``GroupSection``.
     """
 
-    def __init__(self, title: str,
-                 commands: Subcommands = (),
-                 is_sorted: bool = False):  # noqa
+    def __init__(self, title: str, commands: Subcommands = (), is_sorted: bool = False):  # noqa
         """
         :param title:
         :param commands: sequence of commands or dict of commands keyed by name
@@ -35,8 +42,7 @@ class Section:
             if True, ``list_commands()`` returns the commands in lexicographic order
         """
         if not isinstance(title, str):
-            raise TypeError(
-                'the first argument must be a string, the title; you probably forgot it')
+            raise TypeError('the first argument must be a string, the title; you probably forgot it')
         self.title = title
         self.is_sorted = is_sorted
         self.commands: OrderedDict[str, click.Command] = OrderedDict()
@@ -47,8 +53,7 @@ class Section:
         elif isinstance(commands, dict):
             self.commands = OrderedDict(commands)
         else:
-            raise TypeError('argument `commands` must be a sequence of commands '
-                            'or a dict of commands keyed by name')
+            raise TypeError('argument `commands` must be a sequence of commands ' 'or a dict of commands keyed by name')
 
     @classmethod
     def sorted(cls, title: str, commands: Subcommands = ()) -> 'Section':
@@ -63,8 +68,7 @@ class Section:
         self.commands[name] = cmd
 
     def list_commands(self) -> List[Tuple[str, click.Command]]:
-        command_list = [(name, cmd) for name, cmd in self.commands.items()
-                        if not cmd.hidden]
+        command_list = [(name, cmd) for name, cmd in self.commands.items() if not cmd.hidden]
         if self.is_sorted:
             command_list.sort()
         return command_list
@@ -104,7 +108,8 @@ class SectionMixin:
     """
 
     def __init__(
-        self, *args: Any,
+        self,
+        *args: Any,
         commands: Optional[Dict[str, click.Command]] = None,
         sections: Iterable[Section] = (),
         align_sections: Optional[bool] = None,
@@ -131,9 +136,7 @@ class SectionMixin:
             self.add_section(section)
 
     def _add_command_to_section(
-        self, cmd: click.Command,
-        name: Optional[str] = None,
-        section: Optional[Section] = None
+        self, cmd: click.Command, name: Optional[str] = None, section: Optional[Section] = None
     ) -> None:
         """Add a command to the section (if specified) or to the default section."""
         name = name or cmd.name
@@ -163,7 +166,8 @@ class SectionMixin:
         return section
 
     def add_command(
-        self, cmd: click.Command,
+        self,
+        cmd: click.Command,
         name: Optional[str] = None,
         section: Optional[Section] = None,
         fallback_to_default_section: bool = True,
@@ -190,9 +194,7 @@ class SectionMixin:
         if section or fallback_to_default_section:
             self._add_command_to_section(cmd, name, section)
 
-    def list_sections(
-        self, ctx: click.Context, include_default_section: bool = True
-    ) -> List[Section]:
+    def list_sections(self, ctx: click.Context, include_default_section: bool = True) -> List[Section]:
         """
         Return the list of all sections in the "correct order".
 
@@ -203,13 +205,12 @@ class SectionMixin:
         if include_default_section and len(self._default_section) > 0:
             default_section = Section.sorted(
                 title='Other commands' if len(self._user_sections) > 0 else 'Commands',
-                commands=self._default_section.commands)
+                commands=self._default_section.commands,
+            )
             section_list.append(default_section)
         return section_list
 
-    def format_subcommand_name(
-        self, ctx: click.Context, name: str, cmd: click.Command
-    ) -> str:
+    def format_subcommand_name(self, ctx: click.Context, name: str, cmd: click.Command) -> str:
         """Used to format the name of the subcommands. This method is useful
         when you combine this extension with other click extensions that override
         :meth:`format_commands`. Most of these, like click-default-group, just
@@ -218,9 +219,7 @@ class SectionMixin:
         """
         return name
 
-    def make_commands_help_section(
-        self, ctx: click.Context, section: Section
-    ) -> Optional[HelpSection]:
+    def make_commands_help_section(self, ctx: click.Context, section: Section) -> Optional[HelpSection]:
         visible_subcommands = section.list_commands()
         if not visible_subcommands:
             return None
@@ -229,12 +228,10 @@ class SectionMixin:
             definitions=[
                 (self.format_subcommand_name(ctx, name, cmd), cmd.get_short_help_str)
                 for name, cmd in visible_subcommands
-            ]
+            ],
         )
 
-    def must_align_sections(
-        self, ctx: Optional[click.Context], default: bool = True
-    ) -> bool:
+    def must_align_sections(self, ctx: Optional[click.Context], default: bool = True) -> bool:
         return first_bool(
             self.align_sections,
             getattr(ctx, 'align_sections', None),
@@ -245,13 +242,8 @@ class SectionMixin:
         formatter = ensure_is_cloup_formatter(formatter)
 
         subcommand_sections = self.list_sections(ctx)
-        help_sections = pick_not_none(
-            self.make_commands_help_section(ctx, section)
-            for section in subcommand_sections
-        )
+        help_sections = pick_not_none(self.make_commands_help_section(ctx, section) for section in subcommand_sections)
         if not help_sections:
             return
 
-        formatter.write_many_sections(
-            help_sections, aligned=self.must_align_sections(ctx)
-        )
+        formatter.write_many_sections(help_sections, aligned=self.must_align_sections(ctx))

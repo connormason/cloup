@@ -19,7 +19,7 @@ def as_predicate(arg: Union[str, Sequence[str], Predicate]) -> Predicate:
     elif isinstance(arg, Sequence):
         return AllSet(*arg)
     else:
-        raise TypeError("`arg` should be a string, a list of strings or a `Predicate`")
+        raise TypeError('`arg` should be a string, a list of strings or a `Predicate`')
 
 
 class If(Constraint):
@@ -55,9 +55,9 @@ class If(Constraint):
         then_help = self._then.help(ctx)
         else_help = self._else.help(ctx) if self._else else None
         if not self._else:
-            return f"{then_help} if {condition}"
+            return f'{then_help} if {condition}'
         else:
-            return f"{then_help} if {condition}, otherwise {else_help}"
+            return f'{then_help} if {condition}, otherwise {else_help}'
 
     def check_consistency(self, params: Sequence[Parameter]) -> None:
         self._then.check_consistency(params)
@@ -73,14 +73,8 @@ class If(Constraint):
         try:
             branch.check_values(params, ctx=ctx)
         except ConstraintViolated as err:
-            desc = (
-                condition.description(ctx)
-                if condition_is_true
-                else condition.negated_description(ctx)
-            )
-            raise ConstraintViolated(
-                f"when {desc}, {err}", ctx=ctx, constraint=self, params=params
-            )
+            desc = condition.description(ctx) if condition_is_true else condition.negated_description(ctx)
+            raise ConstraintViolated(f'when {desc}, {err}', ctx=ctx, constraint=self, params=params)
 
     def __repr__(self) -> str:
         if self._else:
