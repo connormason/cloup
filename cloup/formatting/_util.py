@@ -18,6 +18,7 @@ of extending `click.HelpFormatter`.
 
 def ensure_is_cloup_formatter(formatter: click.HelpFormatter) -> 'cloup.HelpFormatter':
     from cloup import HelpFormatter
+
     if isinstance(formatter, HelpFormatter):
         return formatter
     raise TypeError(FORMATTER_TYPE_ERROR)

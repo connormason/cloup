@@ -8,8 +8,8 @@ from ._util import (
 )
 
 __all__ = [
-    "HelpFormatter",
-    "HelpSection",
-    "ensure_is_cloup_formatter",
-    "unstyled_len",
+    'HelpFormatter',
+    'HelpSection',
+    'ensure_is_cloup_formatter',
+    'unstyled_len',
 ]

@@ -1,6 +1,14 @@
 """Generic utilities."""
 from typing import (
-    Any, Dict, Hashable, Iterable, List, Optional, Sequence, Type, TypeVar,
+    Any,
+    Dict,
+    Hashable,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Type,
+    TypeVar,
 )
 
 import click
@@ -35,13 +43,7 @@ def indent_lines(lines: Iterable[str], width: int = 2) -> List[str]:
     return [spaces + line for line in lines]
 
 
-def make_repr(
-    obj: Any,
-    *args: Any,
-    _line_len: int = 60,
-    _indent: int = 2,
-    **kwargs: Any
-) -> str:
+def make_repr(obj: Any, *args: Any, _line_len: int = 60, _indent: int = 2, **kwargs: Any) -> str:
     """
     Generate repr(obj).
 
@@ -79,7 +81,10 @@ def make_one_line_repr(obj: object, *args: Any, **kwargs: Any) -> str:
 
 
 def pluralize(
-    count: int, zero: str = '', one: str = '', many: str = '',
+    count: int,
+    zero: str = '',
+    one: str = '',
+    many: str = '',
 ) -> str:
     if count == 0 and zero:
         return zero
@@ -110,9 +115,7 @@ def check_positive_int(value: Any, arg_name: str) -> None:
     elif value <= 0:
         error_type = ValueError
     if error_type:
-        raise error_type(
-            f'argument `{arg_name}` should be a positive integer; it is {value!r}'
-        )
+        raise error_type(f'argument `{arg_name}` should be a positive integer; it is {value!r}')
 
 
 def identity(x: T) -> T:
@@ -142,8 +145,7 @@ class FrozenSpace(metaclass=FrozenSpaceMeta):
     """A class used just as frozen namespace for constants."""
 
     def __init__(self) -> None:
-        raise Exception(
-            "this class is just a namespace for constants, it's not instantiable.")
+        raise Exception("this class is just a namespace for constants, it's not instantiable.")
 
 
 def delete_keys(d: Dict[Any, Any], keys: Sequence[str]) -> None:
@@ -153,6 +155,7 @@ def delete_keys(d: Dict[Any, Any], keys: Sequence[str]) -> None:
 
 def reindent(text: str, indent: int = 0) -> str:
     import textwrap as tw
+
     if text.startswith('\n'):
         text = text[1:]
     text = tw.dedent(text)

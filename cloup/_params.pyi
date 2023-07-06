@@ -20,19 +20,12 @@ ShellCompleteArg = Callable[
     Union[List[CompletionItem], List[str]],
 ]
 
-
 class Argument(click.Argument):
-    def __init__(self, *args: Any, help: Optional[str] = None, **attrs: Any):
-        ...
-
-    def get_help_record(self, ctx: click.Context) -> Tuple[str, str]:
-        ...
-
+    def __init__(self, *args: Any, help: Optional[str] = None, **attrs: Any): ...
+    def get_help_record(self, ctx: click.Context) -> Tuple[str, str]: ...
 
 class Option(click.Option):
-    def __init__(self, *args: Any, group: Optional[OptionGroup] = None, **attrs: Any):
-        ...
-
+    def __init__(self, *args: Any, group: Optional[OptionGroup] = None, **attrs: Any): ...
 
 def argument(
     *param_decls: str,
@@ -49,8 +42,6 @@ def argument(
     shell_complete: Optional[ShellCompleteArg[click.Argument]] = None,
     **kwargs: Any,
 ) -> Callable[[F], F]: ...
-
-
 def option(
     *param_decls: str,
     cls: Optional[Type[click.Option]] = None,
@@ -88,5 +79,5 @@ def option(
     # Others
     group: Optional[OptionGroup] = None,
     shell_complete: Optional[ShellCompleteArg[click.Option]] = None,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Callable[[F], F]: ...

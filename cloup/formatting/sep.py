@@ -50,7 +50,8 @@ class RowSepPolicy(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def __call__(  # noqa E704
-        self, rows: Sequence[Sequence[str]],
+        self,
+        rows: Sequence[Sequence[str]],
         col_widths: Sequence[int],
         col_spacing: int,
     ) -> Optional[str]:
@@ -63,7 +64,8 @@ class RowSepCondition(Protocol):
 
     # Ignore error due to flake8 issue: "multiple statements on one line (def)"
     def __call__(  # noqa E704
-        self, rows: Sequence[Sequence[str]],
+        self,
+        rows: Sequence[Sequence[str]],
         col_widths: Sequence[int],
         col_spacing: int,
     ) -> bool:
@@ -94,18 +96,15 @@ class RowSepIf(RowSepPolicy):
         The empty string corresponds to an empty line separator.
     """
 
-    def __init__(self, condition: RowSepCondition,
-                 sep: Union[str, SepGenerator] = ''):
+    def __init__(self, condition: RowSepCondition, sep: Union[str, SepGenerator] = ''):
         if isinstance(sep, str) and sep.endswith('\n'):
             raise ValueError(
-                "sep must not end with '\\n'. The formatter writes  a '\\n' after it; "
-                "no other newline is allowed.")
+                "sep must not end with '\\n'. The formatter writes  a '\\n' after it; " 'no other newline is allowed.'
+            )
         self.condition = condition
         self.sep = sep
 
-    def __call__(
-        self, rows: Sequence[Sequence[str]], col_widths: Sequence[int], col_spacing: int
-    ) -> Optional[str]:
+    def __call__(self, rows: Sequence[Sequence[str]], col_widths: Sequence[int], col_spacing: int) -> Optional[str]:
         if self.condition(rows, col_widths, col_spacing):
             if callable(self.sep):
                 total_width = get_total_width(col_widths, col_spacing)
@@ -117,6 +116,7 @@ class RowSepIf(RowSepPolicy):
 # ==========================================
 #  Conditions & related utils
 
+
 def get_total_width(col_widths: Sequence[int], col_spacing: int) -> int:
     """Return the total width of a definition list (or, more generally, a table).
     Useful when implementing a RowSepStrategy."""
@@ -127,16 +127,10 @@ def count_multiline_rows(rows: Sequence[Sequence[str]], col_widths: Sequence[int
     # Note: I'm using zip_longest on purpose so that a TypeError will be raised
     # if len(row) != len(col_widths). An explicit check is not worth it since
     # this should never happen.
-    return sum(
-        any(len(col_text) > col_width
-            for col_text, col_width in zip_longest(row, col_widths))
-        for row in rows
-    )
+    return sum(any(len(col_text) > col_width for col_text, col_width in zip_longest(row, col_widths)) for row in rows)
 
 
-def multiline_rows_are_at_least(
-    count_or_percentage: Union[int, float]
-) -> RowSepCondition:
+def multiline_rows_are_at_least(count_or_percentage: Union[int, float]) -> RowSepCondition:
     """
     Return a ``RowSepStrategy`` that returns a row separator between all rows
     of a definition list, only if the number of rows taking multiple lines is
@@ -166,8 +160,9 @@ def multiline_rows_are_at_least(
         percent_threshold = count_or_percentage
         if percent_threshold > 1.0:
             raise ValueError(
-                "count_or_percentage must be either an integer or a float in the "
-                f"interval ]0, 1[. You passed a float >= 1.0 ({percent_threshold}).")
+                'count_or_percentage must be either an integer or a float in the '
+                f'interval ]0, 1[. You passed a float >= 1.0 ({percent_threshold}).'
+            )
 
         def condition(
             rows: Sequence[Sequence[str]],
@@ -177,6 +172,7 @@ def multiline_rows_are_at_least(
             num_multiline = count_multiline_rows(rows, col_widths)
             percent_multiline = num_multiline / len(rows)
             return percent_multiline >= percent_threshold
+
     else:
         raise TypeError('count_or_percentage must be an int or a float')
 
@@ -212,7 +208,7 @@ class Hline(SepGenerator):
         return pattern * reps + pattern[:rest]
 
 
-Hline.solid = Hline("─")
+Hline.solid = Hline('─')
 """Return a line like ``────────``."""
 
 Hline.dashed = Hline('-')
@@ -221,5 +217,5 @@ Hline.dashed = Hline('-')
 Hline.densely_dashed = Hline('╌')
 """Return a line like ``╌╌╌╌╌╌╌╌``."""
 
-Hline.dotted = Hline("┄")
+Hline.dotted = Hline('┄')
 """Return a line like ``┄┄┄┄┄┄┄┄``."""

@@ -79,7 +79,8 @@ class HelpTheme(NamedTuple):
     """Style of the epilog."""
 
     def with_(
-        self, invoked_command: Optional[IStyle] = None,
+        self,
+        invoked_command: Optional[IStyle] = None,
         command_help: Optional[IStyle] = None,
         heading: Optional[IStyle] = None,
         constraint: Optional[IStyle] = None,
@@ -92,14 +93,14 @@ class HelpTheme(NamedTuple):
     ) -> 'HelpTheme':
         kwargs = {key: val for key, val in locals().items() if val is not None}
         if alias_secondary is MISSING:
-            del kwargs["alias_secondary"]
+            del kwargs['alias_secondary']
         kwargs.pop('self')
         if kwargs:
             return self._replace(**kwargs)
         return self
 
     @staticmethod
-    def dark() -> "HelpTheme":
+    def dark() -> 'HelpTheme':
         """A theme assuming a dark terminal background color."""
         return HelpTheme(
             invoked_command=Style(fg='bright_yellow'),
@@ -111,7 +112,7 @@ class HelpTheme(NamedTuple):
         )
 
     @staticmethod
-    def light() -> "HelpTheme":
+    def light() -> 'HelpTheme':
         """A theme assuming a light terminal background color."""
         return HelpTheme(
             invoked_command=Style(fg='yellow'),
@@ -154,6 +155,7 @@ class Style:
 
     .. versionadded:: 0.8.0
     """
+
     fg: Optional[str] = None
     bg: Optional[str] = None
     bold: Optional[bool] = None
@@ -186,23 +188,24 @@ class Style:
 
 class Color(FrozenSpace):
     """Colors accepted by :class:`Style` and :func:`click.style`."""
-    black = "black"
-    red = "red"
-    green = "green"
-    yellow = "yellow"
-    blue = "blue"
-    magenta = "magenta"
-    cyan = "cyan"
-    white = "white"
-    reset = "reset"
-    bright_black = "bright_black"
-    bright_red = "bright_red"
-    bright_green = "bright_green"
-    bright_yellow = "bright_yellow"
-    bright_blue = "bright_blue"
-    bright_magenta = "bright_magenta"
-    bright_cyan = "bright_cyan"
-    bright_white = "bright_white"
+
+    black = 'black'
+    red = 'red'
+    green = 'green'
+    yellow = 'yellow'
+    blue = 'blue'
+    magenta = 'magenta'
+    cyan = 'cyan'
+    white = 'white'
+    reset = 'reset'
+    bright_black = 'bright_black'
+    bright_red = 'bright_red'
+    bright_green = 'bright_green'
+    bright_yellow = 'bright_yellow'
+    bright_blue = 'bright_blue'
+    bright_magenta = 'bright_magenta'
+    bright_cyan = 'bright_cyan'
+    bright_white = 'bright_white'
 
 
 DEFAULT_THEME = HelpTheme()

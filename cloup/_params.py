@@ -10,7 +10,7 @@ class Argument(click.Argument):
         self.help = help
 
     def get_help_record(self, ctx):
-        return self.make_metavar(), self.help or ""
+        return self.make_metavar(), self.help or ''
 
 
 class Option(click.Option):
