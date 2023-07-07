@@ -12,6 +12,7 @@ from typing import Union
 import click
 from click.decorators import _param_memo
 from click.formatting import join_options
+from click.parser import split_opt
 from click.types import _NumberRangeBase
 
 if TYPE_CHECKING:
@@ -55,7 +56,7 @@ class Argument(click.Argument):
         Get data to output in help text
 
         This is implemented to allow the `show_default` option for arguments (similar to options). The code here is
-        mostly pulled from :class:`click.Option.get_help_record`
+        mostly pulled from :meth:`click.Option.get_help_record`
 
         :param ctx: :class:`click.Context`
         """
@@ -123,7 +124,11 @@ class Argument(click.Argument):
                 extra.append(range_str)
 
         # If not required, tag as "optional" (opposite of options)
-        if not self.required:
+        tag_optional_arguments = getattr(ctx, 'tag_optional_arguments', True)
+        if tag_optional_arguments is None:
+            tag_optional_arguments = True
+
+        if (not self.required) and tag_optional_arguments:
             extra.append(_('optional'))
 
         # Add extra tags
@@ -192,6 +197,120 @@ class Option(click.Option):
                 self._previous_parser_process = our_parser.process
                 our_parser.process = parser_process
                 break
+
+    def get_help_record(self, ctx: Context) -> tuple[str, str] | None:
+        """
+        Get data to output in help text
+
+        Pulled straight from :meth:`click.Option.get_help_record`, but with minor changes to allow disablement of the
+        "required" tag
+
+        :param ctx: :class:`click.Context`
+        """
+        if self.hidden:
+            return None
+
+        any_prefix_is_slash = False
+
+        def _write_opts(opts: Sequence[str]) -> str:
+            nonlocal any_prefix_is_slash
+            rv, any_slashes = join_options(opts)
+            if any_slashes:
+                any_prefix_is_slash = True
+            if not self.is_flag and not self.count:
+                rv += f' {self.make_metavar()}'
+            return rv
+
+        rv = [_write_opts(self.opts)]
+        if self.secondary_opts:
+            rv.append(_write_opts(self.secondary_opts))
+
+        help = self.help or ''
+        extra = []
+
+        if self.show_envvar:
+            envvar = self.envvar
+            if envvar is None:
+                if (
+                    self.allow_from_autoenv
+                    and ctx.auto_envvar_prefix is not None
+                    and self.name is not None
+                ):
+                    envvar = f'{ctx.auto_envvar_prefix}_{self.name.upper()}'
+
+            if envvar is not None:
+                var_str = (
+                    envvar
+                    if isinstance(envvar, str)
+                    else ', '.join(str(d) for d in envvar)
+                )
+                extra.append(_('env var: {var}').format(var=var_str))
+
+        # Temporarily enable resilient parsing to avoid type casting
+        # failing for the default. Might be possible to extend this to
+        # help formatting in general.
+        resilient = ctx.resilient_parsing
+        ctx.resilient_parsing = True
+
+        try:
+            default_value = self.get_default(ctx, call=False)
+        finally:
+            ctx.resilient_parsing = resilient
+
+        show_default = False
+        show_default_is_str = False
+
+        if self.show_default is not None:
+            if isinstance(self.show_default, str):
+                show_default_is_str = show_default = True
+            else:
+                show_default = self.show_default
+        elif ctx.show_default is not None:
+            show_default = ctx.show_default
+
+        if show_default_is_str or (show_default and (default_value is not None)):
+            if show_default_is_str:
+                default_string = f'({self.show_default})'
+            elif isinstance(default_value, (list, tuple)):
+                default_string = ', '.join(str(d) for d in default_value)
+            elif inspect.isfunction(default_value):
+                default_string = _('(dynamic)')
+            elif self.is_bool_flag and self.secondary_opts:
+                # For boolean flags that have distinct True/False opts,
+                # use the opt without prefix instead of the value.
+                default_string = split_opt(
+                    (self.opts if self.default else self.secondary_opts)[0]
+                )[1]
+            elif self.is_bool_flag and not self.secondary_opts and not default_value:
+                default_string = ''
+            else:
+                default_string = str(default_value)
+
+            if default_string:
+                extra.append(_('default: {default}').format(default=default_string))
+
+        if (
+            isinstance(self.type, _NumberRangeBase)
+            # skip count with default range type
+            and not (self.count and self.type.min == 0 and self.type.max is None)
+        ):
+            range_str = self.type._describe_range()
+
+            if range_str:
+                extra.append(range_str)
+
+        tag_required_options = getattr(ctx, 'tag_required_options', True)
+        if tag_required_options is None:
+            tag_required_options = True
+
+        if self.required and tag_required_options:
+            extra.append(_('required'))
+
+        if extra:
+            extra_str = '; '.join(extra)
+            help = f'{help}  [{extra_str}]' if help else f'[{extra_str}]'
+
+        return ('; ' if any_prefix_is_slash else ' / ').join(rv), help
 
 
 GroupedOption = Option

@@ -39,7 +39,8 @@ def _warn_if_formatter_settings_conflict(
 
 
 class Context(click.Context):
-    """A custom context for Cloup.
+    """
+    A custom context for Cloup.
 
     Look up :class:`click.Context` for the list of all arguments.
 
@@ -48,32 +49,27 @@ class Context(click.Context):
 
     .. versionadded:: 0.8.0
 
-    :param ctx_args:
-        arguments forwarded to :class:`click.Context`.
-    :param align_option_groups:
-        if True, align the definition lists of all option groups of a command.
-        You can override this by setting the corresponding argument of ``Command``
-        (but you probably shouldn't: be consistent).
-    :param align_sections:
-        if True, align the definition lists of all subcommands of a group.
-        You can override this by setting the corresponding argument of ``Group``
-        (but you probably shouldn't: be consistent).
-    :param show_subcommand_aliases:
-        whether to show the aliases of subcommands in the help of a ``cloup.Group``.
-    :param show_constraints:
-        whether to include a "Constraint" section in the command help (if at
-        least one constraint is defined).
-    :param check_constraints_consistency:
-        enable additional checks for constraints which detects mistakes of the
-        developer (see :meth:`cloup.Constraint.check_consistency`).
-    :param formatter_settings:
-        keyword arguments forwarded to :class:`HelpFormatter` in ``make_formatter``.
-        This args are merged with those of the (eventual) parent context and then
-        merged again (being overridden) by those of the command.
-        **Tip**: use the static method :meth:`HelpFormatter.settings` to create this
-        dictionary, so that you can be guided by your IDE.
-    :param ctx_kwargs:
-        keyword arguments forwarded to :class:`click.Context`.
+    :param ctx_args: arguments forwarded to :class:`click.Context`.
+    :param align_option_groups: if True, align the definition lists of all option groups of a command. You can override
+                                this by setting the corresponding argument of ``Command`` (but you probably shouldn't:
+                                be consistent).
+    :param align_sections: if True, align the definition lists of all subcommands of a group. You can override this
+                           by setting the corresponding argument of ``Group`` (but you probably shouldn't: be
+                           consistent).
+    :param show_subcommand_aliases: whether to show the aliases of subcommands in the help of a ``cloup.Group``.
+    :param show_constraints: whether to include a "Constraint" section in the command help (if at least one constraint
+                             is defined).
+    :param check_constraints_consistency: enable additional checks for constraints which detects mistakes of the
+                                          developer (see :meth:`cloup.Constraint.check_consistency`).
+    :param formatter_settings: keyword arguments forwarded to :class:`HelpFormatter` in ``make_formatter``. This args
+                               are merged with those of the (eventual) parent context and then merged again (being
+                               overridden) by those of the command. **Tip**: use the static method
+                               :meth:`HelpFormatter.settings` to create this dictionary, so that you can be guided by
+                               your IDE.
+    :param tag_required_options: if True, options with `required=True` will be tagged in the help text as "required"
+    :param tag_optional_arguments: if True, arguments with `required=False` will be tagged in the help text
+                                   as "optional"
+    :param ctx_kwargs: keyword arguments forwarded to :class:`click.Context`.
     """
 
     formatter_class: type[HelpFormatter] = HelpFormatter
@@ -88,8 +84,10 @@ class Context(click.Context):
         show_constraints: bool | None = None,
         check_constraints_consistency: bool | None = None,
         formatter_settings: dict[str, Any] = {},
-        max_content_width: int | None = None,                   # Here so we can change the defaults
-        help_option_names: list[str] | None = None,             # Here so we can change the defaults
+        tag_required_options: bool = True,
+        tag_optional_arguments: bool = True,
+        max_content_width: int | None = None,                   # Here so we can change the defaults before super()
+        help_option_names: list[str] | None = None,             # Here so we can change the defaults before super()
         **ctx_kwargs: Any,
     ):
 
@@ -130,7 +128,16 @@ class Context(click.Context):
             getattr(self.parent, 'show_constraints', None),
         )
         self.check_constraints_consistency = coalesce(
-            check_constraints_consistency, getattr(self.parent, 'check_constraints_consistency', None)
+            check_constraints_consistency,
+            getattr(self.parent, 'check_constraints_consistency', None)
+        )
+        self.tag_required_options = coalesce(
+            tag_required_options,
+            getattr(self.parent, 'tag_required_options', None)
+        )
+        self.tag_optional_arguments = coalesce(
+            tag_optional_arguments,
+            getattr(self.parent, 'tag_optional_arguments', None)
         )
 
         if cloup.warnings.formatter_settings_conflict:
