@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import inspect
+from collections.abc import Sequence
+from gettext import gettext as _
 from typing import Any
 from typing import Callable
 from typing import TYPE_CHECKING
@@ -8,6 +11,8 @@ from typing import Union
 
 import click
 from click.decorators import _param_memo
+from click.formatting import join_options
+from click.types import _NumberRangeBase
 
 if TYPE_CHECKING:
     from click.parser import OptionParser
@@ -27,20 +32,106 @@ class Argument(click.Argument):
     :param hidden: hide this argument from help output. If the argument has no help text, it is hidden by default, and
                    setting this to True will show it. If the argument has help text, it is shown by default, and setting
                    this to False will hide it
+    :param show_default: show the default value for this argument in its help text. Values are not shown by default,
+                         unless :attr:`Context.show_default` is ``True``. If this value is a string, it shows that
+                         string in parentheses instead of the actual value. This is particularly useful for
+                         dynamic options
     """
     def __init__(
         self,
         *args: Any,
         help: str | None = None,
         hidden: bool | None = None,
+        show_default: bool | str | None = None,
         **attrs: Any
     ):
         super().__init__(*args, **attrs)
         self.help = help
         self.hidden = hidden
+        self.show_default = show_default
 
     def get_help_record(self, ctx: Context) -> tuple[str, str]:
-        return self.make_metavar(), self.help or ''
+        """
+        Get data to output in help text
+
+        This is implemented to allow the `show_default` option for arguments (similar to options). The code here is
+        mostly pulled from :class:`click.Option.get_help_record`
+
+        :param ctx: :class:`click.Context`
+        """
+        any_prefix_is_slash = False
+
+        def _write_opts(opts: Sequence[str]) -> str:
+            nonlocal any_prefix_is_slash
+            rv, any_slashes = join_options(opts)
+            if any_slashes:
+                any_prefix_is_slash = True
+            rv += f' {self.make_metavar()}'
+            return rv
+
+        rv = [_write_opts(self.opts)]
+        if self.secondary_opts:
+            rv.append(_write_opts(self.secondary_opts))
+
+        help = self.help or ''
+        extra: list[str] = []
+
+        # Temporarily enable resilient parsing to avoid type casting failing for the default
+        resilient = ctx.resilient_parsing
+        ctx.resilient_parsing = True
+
+        # Retrieve default value
+        try:
+            default_value = self.get_default(ctx, call=False)
+        finally:
+            ctx.resilient_parsing = resilient
+
+        # Determine if we should show the default value
+        show_default = False
+        show_default_is_str = False
+
+        if self.show_default is not None:
+            if isinstance(self.show_default, str):
+                show_default_is_str = show_default = True
+            else:
+                show_default = self.show_default
+        elif ctx.show_default is not None:
+            show_default = ctx.show_default
+
+        # Add default info to help text extras
+        if show_default_is_str or (show_default and (default_value is not None)):
+            if show_default_is_str:
+                default_string = f'({self.show_default})'
+            elif isinstance(default_value, (list, tuple)):
+                default_string = ', '.join(str(d) for d in default_value)
+            elif inspect.isfunction(default_value):
+                default_string = _('(dynamic)')
+            else:
+                default_string = str(default_value)
+
+            if default_string:
+                extra.append(_(f'default: {default_string}'))
+
+        # Include description of value range if type is a range of numbers
+        if (
+            isinstance(self.type, _NumberRangeBase)
+            # skip count with default range type
+            and not (self.type.min == 0 and self.type.max is None)
+        ):
+            range_str = self.type._describe_range()
+            if range_str:
+                extra.append(range_str)
+
+        # If not required, tag as "optional" (opposite of options)
+        if not self.required:
+            extra.append(_('optional'))
+
+        # Add extra tags
+        if extra:
+            extra_str = '; '.join(extra)
+            help = f'{help}  [{extra_str}]' if help else f'[{extra_str}]'
+
+        return ('; ' if any_prefix_is_slash else ' / ').join(rv), help
 
 
 class Option(click.Option):
