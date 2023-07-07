@@ -15,6 +15,9 @@ section. By default, the "Positional arguments" section is only displayed if any
 will override this behavior (`hidden=True` will hide args with help text, `hidden=False` will show args with no help
 text)
 
+## Options
+- Options accept `nargs=-1` to consume arbitrary number of values, just like arguments do
+
 ## Option Groups
 - Option groups accept a `post_parse_callback`, which is run after arguments are parsed, and allows manipulation of the
 context. This is useful for more complicated option group factories
