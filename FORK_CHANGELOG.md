@@ -14,6 +14,8 @@ by providing the `max_content_width` context option
 section. By default, the "Positional arguments" section is only displayed if any command arg has `help` text. `hidden`
 will override this behavior (`hidden=True` will hide args with help text, `hidden=False` will show args with no help
 text)
+- Arguments accept `show_default` arg, which determines if the default value should be shown in the help text (just
+like options)
 
 ## Options
 - Options accept `nargs=-1` to consume arbitrary number of values, just like arguments do
