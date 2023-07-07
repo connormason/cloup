@@ -124,7 +124,11 @@ class Argument(click.Argument):
                 extra.append(range_str)
 
         # If not required, tag as "optional" (opposite of options)
-        if not self.required:
+        tag_optional_arguments = getattr(ctx, 'tag_optional_arguments', True)
+        if tag_optional_arguments is None:
+            tag_optional_arguments = True
+
+        if (not self.required) and tag_optional_arguments:
             extra.append(_('optional'))
 
         # Add extra tags
@@ -295,7 +299,11 @@ class Option(click.Option):
             if range_str:
                 extra.append(range_str)
 
-        if self.required:
+        tag_required_options = getattr(ctx, 'tag_required_options', True)
+        if tag_required_options is None:
+            tag_required_options = True
+
+        if self.required and tag_required_options:
             extra.append(_('required'))
 
         if extra:
