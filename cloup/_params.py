@@ -10,6 +10,7 @@ import click
 from click.decorators import _param_memo
 
 if TYPE_CHECKING:
+    from click.parser import OptionParser
     from cloup import Context
     from cloup._commands import Command
     from cloup._option_groups import OptionGroup
@@ -45,10 +46,61 @@ class Argument(click.Argument):
 class Option(click.Option):
     """
     A :class:`click.Option` with an extra field ``group`` of type ``OptionGroup``.
+
+    :param nargs: same as base implementation, but additionally accepts `nargs=-1`, which mimics the behavior of
+                  argparse `nargs='+'` (consume all items up until next option)
     """
     def __init__(self, *args: Any, group: OptionGroup | None = None, **attrs: Any):
+
+        # Grab nargs and determine if we are consuming an arbitrary number
+        nargs = attrs.get('nargs')
+        if nargs is not None:
+            self._consume_arbitrary_nargs = nargs == -1
+        else:
+            self._consume_arbitrary_nargs = False
+
+        if nargs == -1:
+            attrs.pop('nargs', None)
+
         super().__init__(*args, **attrs)
         self.group = group
+
+        self._previous_parser_process = None
+        self._eat_all_parser = None
+
+    def add_to_parser(self, parser: OptionParser, ctx: Context) -> None:
+        """
+        Implemented to support `nargs=-1` for options
+
+        Idea pulled from https://stackoverflow.com/a/48394004
+        """
+        def parser_process(value, state):
+            nonlocal self
+            if self._consume_arbitrary_nargs:
+                done = False
+                value = [value]
+
+                # Grab everything up to the next option¡
+                while state.rargs and not done:
+                    for prefix in self._eat_all_parser.prefixes:
+                        if state.rargs[0].startswith(prefix):
+                            done = True
+                    if not done:
+                        value.append(state.rargs.pop(0))
+
+                value = tuple(value)
+
+            # Call the actual process
+            self._previous_parser_process(value, state)
+
+        super().add_to_parser(parser, ctx)
+        for name in self.opts:
+            our_parser = parser._long_opt.get(name) or parser._short_opt.get(name)
+            if our_parser:
+                self._eat_all_parser = our_parser
+                self._previous_parser_process = our_parser.process
+                our_parser.process = parser_process
+                break
 
 
 GroupedOption = Option
