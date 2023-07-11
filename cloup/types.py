@@ -10,6 +10,7 @@ from gettext import gettext as _
 from typing import Any
 from typing import cast
 from typing import TYPE_CHECKING
+from typing import Union
 
 import click
 from click.types import Choice as _Choice
@@ -22,6 +23,14 @@ from cloup.typing import MISSING
 if TYPE_CHECKING:
     from click import Context
     from click import Parameter
+
+
+"""
+Typing types
+"""
+
+
+RealType = Union[int, float]
 
 
 """
@@ -310,3 +319,26 @@ class JSONPath(JSON):
     """
     def __init__(self, type: type | None = None):
         super().__init__(type=type, str_ok=False)
+
+
+class RealParamType(ParamType):
+    """
+    Parameter type that accepts either a float or an int (like what is represented by the :class:`numbers.Real` type)
+    """
+    name = 'real'
+
+    def convert(self, value: str, param: click.Parameter | None, ctx: click.Context | None) -> RealType:
+        try:
+            return int(value)
+        except ValueError:
+            try:
+                return float(value)
+            except ValueError:
+                return self.fail(_(f'{value} is not a valid integer or floating point value'), param, ctx)
+
+    def __repr__(self) -> str:
+        return 'REAL'
+
+
+#: A real number value parameter, like the numbers.Real type
+Real = RealParamType()
