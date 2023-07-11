@@ -64,7 +64,7 @@ from .constraints import (
     constrained_params,
     constraint,
 )
-from .types import dir_path, file_path, path, Choice, DateTime, Integer
+from .types import dir_path, file_path, path, Choice, DateTime, Integer, JSON, JSONPath, JSONString
 
 __all__ = [
     'Argument',
@@ -85,6 +85,9 @@ __all__ = [
     'INT',
     'Integer',
     'IntRange',
+    'JSON',
+    'JSONPath',
+    'JSONString',
     'Option',
     'OptionGroup',
     'OptionGroupMixin',

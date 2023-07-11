@@ -40,3 +40,7 @@ context. This is useful for more complicated option group factories
     hexadecimal or any other integer base supported by the builtin `int` function)
   - `as_str` can be set to `True` to run integer validation, but pass that integer as provided to the parameter as a
     string to the command callable
+- `JSON` (and `JSONString`/`JSONPath`) parameter type added, which expects valid JSON and returns the parsed JSON. The
+  type can be configured to allow JSON as a raw string provided to the parameter, or a path to a JSON file with the
+  `str_ok` and `path_ok` kwargs respectively. `JSONString` and `JSONPath` are just aliases to the `JSON` type with these
+  kwargs set by default to their respective values
