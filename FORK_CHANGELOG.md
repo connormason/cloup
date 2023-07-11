@@ -28,3 +28,10 @@ like options)
 ## Option Groups
 - Option groups accept a `post_parse_callback`, which is run after arguments are parsed, and allows manipulation of the
 context. This is useful for more complicated option group factories
+
+## Parameter Types
+- `DateTime` parameter type supports additional kwargs:
+  - `formats_in_metavar` can be set to `False` to show "DATETIME" as the parameter metavar, instead of the list of
+    supported datetime formats
+  - `use_dateutil` can be set to `True` to use the [python-dateutil](https://github.com/dateutil/dateutil) package for
+    parsing datetimes, instead of explicitly provided datetime formats to use for parsing
