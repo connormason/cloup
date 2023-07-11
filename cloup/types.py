@@ -8,12 +8,16 @@ from collections.abc import Sequence
 from datetime import datetime
 from gettext import gettext as _
 from typing import Any
+from typing import cast
 from typing import TYPE_CHECKING
 
 import click
 from click.types import Choice as _Choice
 from click.types import DateTime as _DateTime
 from click.types import ParamType
+from click.types import Path
+
+from cloup.typing import MISSING
 
 if TYPE_CHECKING:
     from click import Context
@@ -73,7 +77,7 @@ def file_path(
 
 
 """
-Custom type augmentations
+Default type augmentations
 """
 
 
@@ -203,6 +207,11 @@ class DateTime(_DateTime):
             return super().convert(value, param, ctx)
 
 
+"""
+Custom types
+"""
+
+
 class Integer(ParamType):
     """
     Integer parameter type. Same as providing `type=int` to a parameter, but adds some additional functionality
@@ -225,3 +234,79 @@ class Integer(ParamType):
             self.fail(_(f'{repr(value)} is not a valid integer'), param, ctx)
         else:
             return value if self.as_str else converted_value
+
+
+class JSON(ParamType):
+    """
+    Parameter type that expects valid JSON and returns the parsed JSON
+
+    :param type: require that parsed JSON must be an instance of a specific type (list, dict, etc)
+    :param str_ok: if True, parameter value can be a str representation of JSON
+    :param path_ok: if True, parameter value can be a path to a JSON file
+    """
+    name = 'json'
+
+    def __init__(
+        self,
+        type: type | None = None,
+        str_ok: bool = True,
+        path_ok: bool = False,
+    ):
+        self.type = type
+        self.str_ok = str_ok
+        self.path_ok = path_ok
+
+    def convert(self, value: str, param: click.Parameter | None, ctx: click.Context | None) -> object:
+        import json
+
+        val: Any = MISSING
+        path_exc: Exception | None = None
+
+        if self.path_ok:
+            path_param_type = Path(exists=True, dir_okay=False, path_type=pathlib.Path)
+            try:
+                _path = path_param_type.convert(value, param, ctx)
+            except click.BadParameter as exc:
+                path_exc = exc
+            else:
+                _path = cast(pathlib.Path, _path)
+                try:
+                    with _path.open() as f:
+                        val = json.load(f)
+                except json.JSONDecodeError as e:
+                    self.fail(_(f'Path {_path} contains invalid JSON. {str(e)}'), param, ctx)
+
+        if self.str_ok and (val is MISSING):
+            try:
+                val = json.loads(value)
+            except json.JSONDecodeError as e:
+                if (path_exc is not None) and ('line 1 column 1 (char 0)' in str(e)):
+                    self.fail(_(str(path_exc)), param, ctx)
+                else:
+                    self.fail(_(f'Invalid JSON provided. {str(e)}'), param, ctx)
+
+        if (self.type is not None) and (not isinstance(val, self.type)):
+            self.fail(_(f'Provided JSON must be of type "{self.type}"'), param, ctx)
+            return None     # This is here to appease mypy
+        else:
+            return val
+
+
+class JSONString(JSON):
+    """
+    Parameter type that expects a valid JSON str and returns the parsed JSON
+
+    :param type: require that parsed JSON must be an instance of a specific type (list, dict, etc)
+    """
+    def __init__(self, type: type | None = None):
+        super().__init__(type=type, path_ok=False)
+
+
+class JSONPath(JSON):
+    """
+    Parameter type that expects a valid JSON file and returns the parsed JSON
+
+    :param type: require that parsed JSON must be an instance of a specific type (list, dict, etc)
+    """
+    def __init__(self, type: type | None = None):
+        super().__init__(type=type, str_ok=False)
