@@ -19,7 +19,6 @@ from click import (
     version_option,
     # types
     BOOL,
-    Choice,
     DateTime,
     File,
     FLOAT,
@@ -66,7 +65,7 @@ from .constraints import (
     constrained_params,
     constraint,
 )
-from .types import dir_path, file_path, path
+from .types import dir_path, file_path, path, Choice
 
 __all__ = [
     'Argument',
