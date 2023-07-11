@@ -44,3 +44,5 @@ context. This is useful for more complicated option group factories
   type can be configured to allow JSON as a raw string provided to the parameter, or a path to a JSON file with the
   `str_ok` and `path_ok` kwargs respectively. `JSONString` and `JSONPath` are just aliases to the `JSON` type with these
   kwargs set by default to their respective values
+- `Real` parameter type added, which accepts either a float or an int (like what is represented by the `numbers.Real`)
+  type
