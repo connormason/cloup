@@ -35,3 +35,8 @@ context. This is useful for more complicated option group factories
     supported datetime formats
   - `use_dateutil` can be set to `True` to use the [python-dateutil](https://github.com/dateutil/dateutil) package for
     parsing datetimes, instead of explicitly provided datetime formats to use for parsing
+- `Integer` parameter type added, which is the same as using `type=int`, but adds additional customization kwargs:
+  - `base` can be provided to set what base the integer should be parsed with (which allows a parameter to accept
+    hexadecimal or any other integer base supported by the builtin `int` function)
+  - `as_str` can be set to `True` to run integer validation, but pass that integer as provided to the parameter as a
+    string to the command callable

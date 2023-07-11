@@ -19,7 +19,6 @@ from click import (
     version_option,
     # types
     BOOL,
-    DateTime,
     File,
     FLOAT,
     FloatRange,
@@ -65,7 +64,7 @@ from .constraints import (
     constrained_params,
     constraint,
 )
-from .types import dir_path, file_path, path, Choice
+from .types import dir_path, file_path, path, Choice, DateTime, Integer
 
 __all__ = [
     'Argument',
@@ -84,6 +83,7 @@ __all__ = [
     'HelpSection',
     'HelpTheme',
     'INT',
+    'Integer',
     'IntRange',
     'Option',
     'OptionGroup',

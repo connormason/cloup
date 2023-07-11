@@ -6,16 +6,23 @@ from __future__ import annotations
 import pathlib
 from collections.abc import Sequence
 from datetime import datetime
+from gettext import gettext as _
 from typing import Any
 from typing import TYPE_CHECKING
 
 import click
 from click.types import Choice as _Choice
 from click.types import DateTime as _DateTime
+from click.types import ParamType
 
 if TYPE_CHECKING:
     from click import Context
     from click import Parameter
+
+
+"""
+Type shortcuts
+"""
 
 
 def path(
@@ -65,6 +72,11 @@ def file_path(
     return click.Path(**locals(), dir_okay=False)
 
 
+"""
+Custom type augmentations
+"""
+
+
 class Choice(_Choice):
     """
     The choice type allows a value to be checked against a fixed set of supported values.
@@ -112,14 +124,16 @@ class Choice(_Choice):
             for value_item in normed_value:
                 if value_item not in normed_choices:
                     return self.fail(
-                        f'invalid choice: {value_item}. (choose from {", ".join(self.choices)})', param, ctx
+                        _(f'invalid choice: {value_item}. (choose from {", ".join(self.choices)})'),
+                        param,
+                        ctx
                     )
             else:
                 return normed_value
         elif normed_value in normed_choices:
             return normed_choices[normed_value]
         else:
-            return self.fail(f'invalid choice: {value}. (choose from {", ".join(self.choices)})', param, ctx)
+            return self.fail(_(f'invalid choice: {value}. (choose from {", ".join(self.choices)})'), param, ctx)
 
 
 class DateTime(_DateTime):
@@ -145,8 +159,8 @@ class DateTime(_DateTime):
                     ``'%Y-%m-%d'``, ``'%Y-%m-%dT%H:%M:%S'``, ``'%Y-%m-%d %H:%M:%S'``.
     :param formats_in_metavar: if True, datetime formats will be shown as the option metavar. If False, "DATETIME" will
                                be shown as the option metavar
-    :param use_dateutil: if True, python-dateutil will be used to parse the option value (if it is installed). When
-                         True, the ``formats`` kwarg is ignored
+    :param use_dateutil: if True, python-dateutil will be used to parse the option value. When True, the ``formats``
+                         kwarg is ignored. If `python-dateutil` is not installed, an ImportError will be raised
     """
     def __init__(
         self,
@@ -183,7 +197,31 @@ class DateTime(_DateTime):
                 try:
                     return parse_datetime(value)
                 except ParserError:
-                    self.fail(f'{value} is not a valid datetime', param, ctx)
+                    self.fail(_(f'{value} is not a valid datetime'), param, ctx)
 
         else:
             return super().convert(value, param, ctx)
+
+
+class Integer(ParamType):
+    """
+    Integer parameter type. Same as providing `type=int` to a parameter, but adds some additional functionality
+
+    Implemented in connormason/cloup:
+        - Added `base` kwarg
+        - Added `as_str` kwargs
+
+    :param base: base of integer to parse as (as accepted by the `base` arg of :func:`int`)
+    :param as_str: if True, value will be validated then returned as string (instead of being converted to an int)
+    """
+    def __init__(self, base: int = 10, as_str: bool = False):
+        self.base = base
+        self.as_str = as_str
+
+    def convert(self, value: Any, param: Parameter | None, ctx: Context | None) -> Any:
+        try:
+            converted_value = int(value, self.base)
+        except ValueError:
+            self.fail(_(f'{repr(value)} is not a valid integer'), param, ctx)
+        else:
+            return value if self.as_str else converted_value
